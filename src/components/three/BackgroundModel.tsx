@@ -21,8 +21,10 @@ export function BackgroundModel(props: any) {
   const { scene, animations } = useGLTF(keyboardGlbUrl)
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { actions, mixer } = useAnimations(animations, group)
-  const { viewport } = useThree()
-  const responsiveScale = Math.min(1, viewport.width / 12) // Desktop width is ~12-14 at this FOV/Z. Scales down on smaller screens.
+  const { size } = useThree()
+  // Use fixed breakpoints for scale so it stays perfectly consistent across standard desktop sizes.
+  // Mobile (<768px): 0.6 | Tablet (<1024px): 0.85 | Desktop (1024px+): 1.0
+  const responsiveScale = size.width < 768 ? 0.6 : size.width < 1024 ? 0.85 : 1
 
   const reducedMotion = useReducedMotion()
 
