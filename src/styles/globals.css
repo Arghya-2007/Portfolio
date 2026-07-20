@@ -1,0 +1,81 @@
+@import "tailwindcss/index.css";
+@config "../../tailwind.config.ts";
+
+@layer base {
+  :root {
+    --bg-base: #100F0D;
+    --bg-elevated: #171512;
+    
+    --surface-glass: rgba(247, 240, 227, 0.05);
+    --border-glass: rgba(247, 240, 227, 0.10);
+    
+    --primary-500: #8FBFA3;
+    --primary-300: #B7D9C4;
+    --primary-700: #5C8C71;
+    
+    --secondary-500: #E0937A;
+    --secondary-300: #EDB6A2;
+    --secondary-700: #A9654F;
+    
+    --text-primary: #F2EDE4;
+    --text-secondary: #B8B2A6;
+    --text-tertiary: #78736A;
+    
+    --status-live: #8FBFA3;
+    --status-progress: #E0C27A;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background antialiased;
+    color: var(--text-primary);
+    font-family: "Inter", sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Typography — body/paragraph text uses --text-secondary per Design.md §2 */
+  p, li, dd, blockquote {
+    color: var(--text-secondary);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    font-family: "Space Grotesk", sans-serif;
+  }
+
+  /* Scale per Design.md §3 — mobile-first, ~30-40% smaller */
+  h1 { @apply text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight; }
+  h2 { @apply text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight; }
+  h3 { @apply text-xl md:text-2xl lg:text-3xl font-semibold; }
+}
+
+@layer utilities {
+  .glass {
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+  }
+  
+  .neo {
+    box-shadow: 6px 6px 16px rgba(0,0,0,0.5), -6px -6px 16px rgba(255,255,255,0.02);
+    border-radius: 0.5rem;
+  }
+
+  /* Section wrapper utility for consistent vertical spacing */
+  .section-padding {
+    @apply px-4 py-16 md:px-8 md:py-24 lg:px-16 lg:py-32;
+  }
+}
