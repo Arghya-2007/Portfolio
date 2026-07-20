@@ -22,42 +22,42 @@ export const MODEL_POSES: ModelPose[] = [
   {
     position: [3.2, -1.8, -3.5], // Balanced depth and height on the right
     rotation: [0.45, -0.25, 0.05], // Tilted to show keys, angled slightly left toward content, tiny z-tilt for natural float
-    scale: 1.0,
+    scale: 0.6,
     opacity: 0.9,
   },
   // 1 — About: drift left, slight tilt
   {
     position: [-3, -2, -3],
     rotation: [0.1, 0.5, 0],
-    scale: 0.9,
+    scale: 0.6,
     opacity: 0.7,
   },
   // 2 — TechStack: back to right, different angle
   {
     position: [2.5, -1.5, -2.5],
     rotation: [-0.15, -0.8, 0],
-    scale: 0.95,
+    scale: 0.6,
     opacity: 0.75,
   },
   // 3 — Projects: left, recessed
   {
     position: [-2.5, -0.5, -3],
     rotation: [0.2, 1.0, 0],
-    scale: 0.85,
+    scale: 0.6,
     opacity: 0.65,
   },
   // 4 — Roadmap: right, pulled forward slightly
   {
     position: [3.5, -1, -2],
     rotation: [-0.1, -1.2, 0],
-    scale: 0.9,
+    scale: 0.6,
     opacity: 0.7,
   },
   // 5 — Contact: centered, recessed, minimal
   {
-    position: [0, -2, -4],
+    position: [0, -3, -4],
     rotation: [0.3, 0, 0],
-    scale: 0.8,
+    scale: 0.9,
     opacity: 0.6,
   },
 ]
