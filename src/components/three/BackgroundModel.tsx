@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, useAnimations, Float } from '@react-three/drei'
 import * as THREE from 'three'
 import { SkeletonUtils } from 'three-stdlib'
@@ -21,6 +21,8 @@ export function BackgroundModel(props: any) {
   const { scene, animations } = useGLTF(keyboardGlbUrl)
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { actions, mixer } = useAnimations(animations, group)
+  const { viewport } = useThree()
+  const responsiveScale = Math.min(1, viewport.width / 12) // Desktop width is ~12-14 at this FOV/Z. Scales down on smaller screens.
 
   const reducedMotion = useReducedMotion()
 
@@ -194,15 +196,16 @@ export function BackgroundModel(props: any) {
     }
 
     // ---- Change 3: Interpolate between section poses ----
-    const interpX = currentPose.position[0] + (nextPose.position[0] - currentPose.position[0]) * t
-    const interpY = currentPose.position[1] + (nextPose.position[1] - currentPose.position[1]) * t + idlePosY
+    // Apply responsiveScale to X/Y positions and scale to adapt to smaller screens (like mobile)
+    const interpX = (currentPose.position[0] + (nextPose.position[0] - currentPose.position[0]) * t) * responsiveScale
+    const interpY = (currentPose.position[1] + (nextPose.position[1] - currentPose.position[1]) * t + idlePosY) * responsiveScale
     const interpZ = currentPose.position[2] + (nextPose.position[2] - currentPose.position[2]) * t
 
     const interpRotX = currentPose.rotation[0] + (nextPose.rotation[0] - currentPose.rotation[0]) * t
     const interpRotY = currentPose.rotation[1] + (nextPose.rotation[1] - currentPose.rotation[1]) * t
     const interpRotZ = currentPose.rotation[2] + (nextPose.rotation[2] - currentPose.rotation[2]) * t
 
-    const interpScale = currentPose.scale + (nextPose.scale - currentPose.scale) * t
+    const interpScale = (currentPose.scale + (nextPose.scale - currentPose.scale) * t) * responsiveScale
     const interpOpacity = currentPose.opacity + (nextPose.opacity - currentPose.opacity) * t
 
     // ---- Change 2: Subtle mouse tilt (additive, X/Y only, no Z) ----
