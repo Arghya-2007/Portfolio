@@ -6,8 +6,9 @@ import { motion } from 'framer-motion'
 import { useActiveSection } from '@/hooks/useActiveSection'
 import { useLoadingStore } from '@/store/useLoadingStore'
 
-// Hero uses GSAP and browser APIs — load client-only
+// Hero & TechStack use GSAP and browser APIs — load client-only
 const Hero = dynamic(() => import('@/components/sections/Hero'), { ssr: false })
+const TechStack = dynamic(() => import('@/components/sections/TechStack'), { ssr: false })
 
 export default function HomePage() {
   useActiveSection()
@@ -22,6 +23,7 @@ export default function HomePage() {
       className="min-h-screen bg-surface-base origin-center"
     >
       <Hero />
+      <TechStack />
     </motion.main>
   )
 }

@@ -576,19 +576,23 @@ function Hero() {
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top top',
-            end: () => `+=${scrollEnd}`,
+            end: () => `+=${scrollEnd + window.innerHeight * 1.5}`,
             pin: true,
             scrub: 0.8,
             anticipatePin: 1,
             onUpdate: (self) => {
-              setProgress(self.progress)
+              const ratio = scrollEnd / (scrollEnd + window.innerHeight * 1.5)
+              setProgress(Math.min(self.progress / ratio, 1))
             },
           },
           defaults: { ease: 'power3.out' },
         })
 
-        // Total timeline duration = 10 scrubbed units
-        masterTimeline.totalDuration(10)
+        // Pad timeline so animations finish exactly at `scrollEnd` (4800px), 
+        // leaving `window.innerHeight * 1.5` of empty pinned time.
+        // The first 0.5 * innerHeight acts as a buffer for the 0.8s scrub lag and reading time.
+        // The final 1.0 * innerHeight is when TechStack natively slides over.
+        masterTimeline.to({}, { duration: () => 7.8 * (window.innerHeight * 1.5 / scrollEnd) })
 
         // ─── Phase A: Billboard hold (0 → 1) ───────────────────────
         // Nothing animates. Billboard name sits large and centered.

@@ -81,9 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <LenisProvider>
             <MotionProvider>
               <LoadingScreen />
-              <Navbar />
               {children}
-              <Footer />
             </MotionProvider>
           </LenisProvider>
         </AnimationProvider>

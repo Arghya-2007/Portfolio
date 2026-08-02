@@ -1,3 +1,4 @@
+import React from 'react'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -8,7 +9,7 @@ interface Props {
 
 // ─── Brand SVG Icons (Pixel-Perfect, Self-Contained) ──────────────────────────
 
-function ReactIcon({ size = 16 }: { size?: number }) {
+export function ReactIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="-11.5 -10.23174 23 20.46348" fill="none" aria-hidden="true">
       <circle cx="0" cy="0" r="2.05" fill="#61DAFB" />
@@ -21,7 +22,7 @@ function ReactIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-function NextjsIcon({ size = 16 }: { size?: number }) {
+export function NextjsIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 180 180" fill="none" aria-hidden="true">
       <circle cx="90" cy="90" r="90" fill="#000000" stroke="rgba(255,255,255,0.2)" strokeWidth="4" />
@@ -44,7 +45,7 @@ function NextjsIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-function TypeScriptIcon({ size = 16 }: { size?: number }) {
+export function TypeScriptIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 128 128" aria-hidden="true">
       <rect width="128" height="128" rx="20" fill="#3178C6" />
@@ -53,7 +54,7 @@ function TypeScriptIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-function TailwindIcon({ size = 16 }: { size?: number }) {
+export function TailwindIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
@@ -64,7 +65,24 @@ function TailwindIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-function NodeIcon({ size = 16 }: { size?: number }) {
+export function JavaScriptIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <rect width="24" height="24" rx="4" fill="#F7DF1E" />
+      <path d="M7 16.5c.5.8 1.2 1.3 2.1 1.3 1.1 0 1.9-.6 1.9-2v-6.8h2.3v6.8c0 2.4-1.5 3.5-3.8 3.5-1.9 0-3.1-.9-3.7-2.3l1.2-.5zm8.5-.2c.5.6 1.2 1 2 1 .9 0 1.5-.4 1.5-1.1 0-.8-.6-1.1-1.8-1.6-1.7-.7-2.8-1.4-2.8-3.1 0-1.7 1.3-3 3.3-3 1.4 0 2.5.5 3.2 1.7l-1.6 1c-.4-.7-.9-.9-1.6-.9-.8 0-1.2.4-1.2.9 0 .6.5.9 1.5 1.3 1.9.8 3.1 1.5 3.1 3.3 0 2-1.6 3.2-3.8 3.2-2.1 0-3.4-1-4-2.4l1.4-.4z" fill="#000000" />
+    </svg>
+  )
+}
+
+export function HTMLIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 3l1.6 16.2L12 21.5l6.4-2.3L20 3H4zm13.3 4.2h-7.8l.2 2.2h7.4l-.6 6.3-4.5 1.5-4.5-1.5-.3-3.2h2.2l.1 1.6 2.5.8 2.5-.8.3-2.6H6.6L6 5.1h11.5l-.2 2.1z" fill="#E34F26" />
+    </svg>
+  )
+}
+
+export function NodeIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
       <path
@@ -79,7 +97,7 @@ function NodeIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-function NestJSIcon({ size = 16 }: { size?: number }) {
+export function NestJSIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 256 256" fill="none" aria-hidden="true">
       <path
@@ -90,7 +108,7 @@ function NestJSIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-function PostgresIcon({ size = 16 }: { size?: number }) {
+export function PostgresIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
@@ -101,29 +119,42 @@ function PostgresIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-function FirebaseIcon({ size = 16 }: { size?: number }) {
+export function RedisIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4.5 18.5L7.8 4.2c.1-.4.6-.5.9-.2l4.1 7.2L4.5 18.5z" fill="#FFA000" />
-      <path d="M14.2 8.7l2.1-3.9c.2-.4.8-.4 1 0l3.2 13.7-6.3-9.8z" fill="#F57C00" />
-      <path d="M4.5 18.5L12 22.8c.4.2.8.2 1.2 0l7.3-4.3-6-3.8-1.7-1.1-7.3 4.9z" fill="#FFCA28" />
+      <path d="M2.5 14.5L12 19.5l9.5-5-3.5-2L12 15.5l-6-3-3.5 2z" fill="#A81F1A" />
+      <path d="M2.5 9.5L12 14.5l9.5-5-3.5-2L12 10.5l-6-3-3.5 2z" fill="#DC382D" />
+      <path d="M12 2.5L2.5 7.5 6 9.5l6-3 6 3 3.5-2L12 2.5z" fill="#FF4438" />
     </svg>
   )
 }
 
-function CloudRunIcon({ size = 16 }: { size?: number }) {
+export function MongoIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"
-        fill="#4285F4"
-      />
-      <path d="M10 9v6l5-3z" fill="#2a9d8f" />
+      <path d="M12 1.5C11.6 2 7 8 7 13.5 7 17.5 9.2 21 12 22.5c2.8-1.5 5-5 5-9 0-5.5-4.6-11.5-5-12z" fill="#47A248" />
+      <path d="M12 2.5v19c2.3-1.3 4.2-4.5 4.2-8 0-4.8-3.8-10-4.2-11z" fill="#499D4A" />
     </svg>
   )
 }
 
-function DockerIcon({ size = 16 }: { size?: number }) {
+export function SupabaseIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M13.2 2.5c.3-.6 1.2-.4 1.3.3l1.8 7.2h6.2c.7 0 1.1.8.6 1.3L10.8 21.5c-.3.6-1.2.4-1.3-.3l-1.8-7.2H1.5c-.7 0-1.1-.8-.6-1.3L13.2 2.5z" fill="#3ECF8E" />
+    </svg>
+  )
+}
+
+export function PrismaIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M18.8 19.3L13.5 2.8c-.3-.8-1.4-.9-1.8-.1L3.4 18.2c-.3.7.2 1.5 1 1.5h13.6c.6 0 1.1-.5.8-1.1l-.8-2.3 3.6-3.8c.6-.7.1-1.8-.8-1.8H18l.8 8.6z" fill="#5A67D8" />
+    </svg>
+  )
+}
+
+export function DockerIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
@@ -134,7 +165,37 @@ function DockerIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-function PythonIcon({ size = 16 }: { size?: number }) {
+export function KubernetesIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2.2l8.5 4.9v9.8L12 21.8 3.5 16.9V7.1L12 2.2z" stroke="#326CE5" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="3.2" fill="#326CE5" />
+      <path d="M12 5.5v3.3M12 15.2v3.3M6.5 8.7l2.8 1.6M14.7 13.7l2.8 1.6M17.5 8.7l-2.8 1.6M9.3 13.7l-2.8 1.6" stroke="#326CE5" strokeWidth="1.4" />
+    </svg>
+  )
+}
+
+export function AWSIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6.8 11.4c-.8 0-1.5.3-2 .8-.5.5-.7 1.3-.7 2.2 0 1.9 1 2.9 2.9 2.9.8 0 1.5-.3 2.1-.8v-3.7c-.6-.9-1.4-1.4-2.3-1.4z" fill="#FF9900" />
+      <path d="M18.8 17.2c-.4.4-1 .6-1.7.6-.8 0-1.5-.3-1.9-.9-.4-.6-.7-1.4-.7-2.5 0-1.1.2-2 .7-2.6.5-.6 1.2-.9 2-.9.7 0 1.3.2 1.6.6v-2h1.6v9h-1.6v-1.3z" fill="#FF9900" />
+      <path d="M3.5 19.5c5.5 2.8 12.2 2.1 17-1.2" stroke="#FF9900" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M19.8 16.8l2.2 2-2.8.8.6-2.8z" fill="#FF9900" />
+    </svg>
+  )
+}
+
+export function GCPIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="#4285F4" />
+      <path d="M10 8.5v7l6-3.5-6-3.5z" fill="#FFFFFF" />
+    </svg>
+  )
+}
+
+export function PythonIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 128 128" fill="none" aria-hidden="true">
       <path
@@ -149,7 +210,67 @@ function PythonIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-function DefaultCodeIcon({ size = 16 }: { size?: number }) {
+export function FlutterIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M14.3 2.5L3.8 13l3.2 3.2L17.5 5.7h4.7L14.3 2.5z" fill="#42A5F5" />
+      <path d="M14.3 14.8l-3.2 3.2 4.4 4.5h4.7l-5.9-7.7z" fill="#0D47A1" />
+      <path d="M11.1 18l3.2-3.2 3.2 3.2-3.2 3.2-3.2-3.2z" fill="#29B6F6" />
+    </svg>
+  )
+}
+
+export function FirebaseIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4.5 18.5L7.8 4.2c.1-.4.6-.5.9-.2l4.1 7.2L4.5 18.5z" fill="#FFA000" />
+      <path d="M14.2 8.7l2.1-3.9c.2-.4.8-.4 1 0l3.2 13.7-6.3-9.8z" fill="#F57C00" />
+      <path d="M4.5 18.5L12 22.8c.4.2.8.2 1.2 0l7.3-4.3-6-3.8-1.7-1.1-7.3 4.9z" fill="#FFCA28" />
+    </svg>
+  )
+}
+
+export function LinuxIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2c-3.3 0-6 2.7-6 6 0 1.8.8 3.5 2.1 4.6L7 18.5c-.3.8.3 1.5 1.1 1.5h7.8c.8 0 1.4-.7 1.1-1.5l-1.1-5.9C17.2 11.5 18 9.8 18 8c0-3.3-2.7-6-6-6z" fill="#FCC624" />
+      <circle cx="10" cy="7" r="1" fill="#000" />
+      <circle cx="14" cy="7" r="1" fill="#000" />
+      <path d="M10 9.5c.8.6 3.2.6 4 0" stroke="#E65100" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function GitIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M21.7 10.7L13.3 2.3a1.9 1.9 0 0 0-2.6 0L8.4 4.6l3.3 3.3a2.2 2.2 0 0 1 2.8 2.8l3.2 3.2a2.2 2.2 0 1 1-1.3 1.3l-3-3v4.6a2.2 2.2 0 1 1-1.9 0V11a2.2 2.2 0 0 1-1.2-2.9L7 5.8 2.3 10.5a1.9 1.9 0 0 0 0 2.6l8.4 8.4a1.9 1.9 0 0 0 2.6 0l8.4-8.4a1.9 1.9 0 0 0 0-2.4z" fill="#F05032" />
+    </svg>
+  )
+}
+
+export function FigmaIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M8 2h4v5H8a2.5 2.5 0 0 1 0-5z" fill="#F24E1E" />
+      <path d="M12 2h4a2.5 2.5 0 0 1 0 5h-4V2z" fill="#FF7262" />
+      <path d="M12 7h4a2.5 2.5 0 0 1 0 5h-4V7z" fill="#1ABCFE" />
+      <path d="M8 7h4v5H8a2.5 2.5 0 0 1 0-5z" fill="#A259FF" />
+      <path d="M8 12h4v5H8a2.5 2.5 0 0 1 0-5z" fill="#0ACF83" />
+    </svg>
+  )
+}
+
+export function PostmanIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" fill="#FF6C37" />
+      <path d="M17.5 12l-7.5-4.3v8.6l7.5-4.3z" fill="#FFFFFF" />
+    </svg>
+  )
+}
+
+export function DefaultCodeIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#2a9d8f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <polyline points="16 18 22 12 16 6" />
@@ -160,20 +281,33 @@ function DefaultCodeIcon({ size = 16 }: { size?: number }) {
 
 // ─── Tech Icon Resolver ───────────────────────────────────────────────────────
 
-function getTechIcon(name: string, size = 16) {
-  const normalized = name.toLowerCase().trim()
+export function getTechIcon(name: string, size = 16): React.ReactNode {
+  const norm = name.toLowerCase().trim()
 
-  if (normalized.includes('react')) return <ReactIcon size={size} />
-  if (normalized.includes('next')) return <NextjsIcon size={size} />
-  if (normalized.includes('type') || normalized === 'ts') return <TypeScriptIcon size={size} />
-  if (normalized.includes('tailwind')) return <TailwindIcon size={size} />
-  if (normalized.includes('node')) return <NodeIcon size={size} />
-  if (normalized.includes('nest')) return <NestJSIcon size={size} />
-  if (normalized.includes('postgres') || normalized.includes('sql') || normalized.includes('psql')) return <PostgresIcon size={size} />
-  if (normalized.includes('firebase')) return <FirebaseIcon size={size} />
-  if (normalized.includes('cloud run') || normalized.includes('gcp') || normalized.includes('google cloud')) return <CloudRunIcon size={size} />
-  if (normalized.includes('docker')) return <DockerIcon size={size} />
-  if (normalized.includes('python')) return <PythonIcon size={size} />
+  if (norm.includes('react')) return <ReactIcon size={size} />
+  if (norm.includes('next')) return <NextjsIcon size={size} />
+  if (norm.includes('typescript') || norm === 'ts') return <TypeScriptIcon size={size} />
+  if (norm.includes('tailwind')) return <TailwindIcon size={size} />
+  if (norm.includes('javascript') || norm === 'js') return <JavaScriptIcon size={size} />
+  if (norm.includes('html') || norm.includes('css')) return <HTMLIcon size={size} />
+  if (norm.includes('node')) return <NodeIcon size={size} />
+  if (norm.includes('nest')) return <NestJSIcon size={size} />
+  if (norm.includes('postgres') || norm.includes('sql') || norm.includes('psql')) return <PostgresIcon size={size} />
+  if (norm.includes('redis')) return <RedisIcon size={size} />
+  if (norm.includes('mongo')) return <MongoIcon size={size} />
+  if (norm.includes('supabase')) return <SupabaseIcon size={size} />
+  if (norm.includes('prisma')) return <PrismaIcon size={size} />
+  if (norm.includes('docker')) return <DockerIcon size={size} />
+  if (norm.includes('kubernetes') || norm.includes('k8s')) return <KubernetesIcon size={size} />
+  if (norm.includes('aws')) return <AWSIcon size={size} />
+  if (norm.includes('gcp') || norm.includes('google cloud') || norm.includes('cloud run')) return <GCPIcon size={size} />
+  if (norm.includes('python')) return <PythonIcon size={size} />
+  if (norm.includes('flutter')) return <FlutterIcon size={size} />
+  if (norm.includes('firebase')) return <FirebaseIcon size={size} />
+  if (norm.includes('linux')) return <LinuxIcon size={size} />
+  if (norm.includes('git') || norm.includes('github')) return <GitIcon size={size} />
+  if (norm.includes('figma')) return <FigmaIcon size={size} />
+  if (norm.includes('postman')) return <PostmanIcon size={size} />
 
   return <DefaultCodeIcon size={size} />
 }
