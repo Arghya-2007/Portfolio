@@ -1,26 +1,233 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ─── Google Font variables (set by next/font in layout.tsx) ─── */
+/* --font-space-grotesk, --font-inter, --font-jetbrains-mono */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+/* ─── CSS Custom Properties ─── */
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Brand colors */
+    --color-ocean:  #264653;
+    --color-teal:   #2a9d8f;
+    --color-gold:   #e9c46a;
+    --color-sand:   #f4a261;
+    --color-coral:  #e76f51;
+
+    /* Surfaces */
+    --surface-base: #0d1f26;
+    --surface-deep: #152e38;
+    --surface-mid:  #1c3d4a;
+    --surface-glass: rgba(26, 50, 62, 0.35);
+    --surface-glass-hover: rgba(26, 50, 62, 0.50);
+
+    /* Text */
+    --text-primary:   #f0f4f5;
+    --text-secondary: #8faab3;
+    --text-muted:     #4d6b75;
+    --text-accent:    #2a9d8f;
+
+    /* Gradients */
+    --grad-warm:  linear-gradient(135deg, #e76f51 0%, #e9c46a 100%);
+    --grad-teal:  linear-gradient(135deg, #2a9d8f 0%, #264653 100%);
+    --grad-dark:  linear-gradient(180deg, #0d1f26 0%, #152e38 50%, #0d1f26 100%);
+
+    /* Spacing */
+    --space-section: 96px;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: auto; /* Lenis handles smooth scroll — disable native */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--surface-base);
+    color: var(--text-primary);
+    font-family: var(--font-inter), system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+
+  body.custom-cursor-active,
+  body.custom-cursor-active * {
+    cursor: none !important;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--surface-base);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(42, 157, 143, 0.40);
+    border-radius: 100px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(42, 157, 143, 0.70);
+  }
+
+  /* Selection color */
+  ::selection {
+    background: rgba(42, 157, 143, 0.30);
+    color: var(--text-primary);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── Glass Utility Classes ─── */
+@layer components {
+  /* Base glass — used on most cards */
+  .glass {
+    background: rgba(26, 50, 62, 0.35);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(42, 157, 143, 0.20);
+    border-radius: 16px;
+  }
+
+  /* Elevated glass — modals, featured cards */
+  .glass-elevated {
+    background: rgba(26, 50, 62, 0.55);
+    backdrop-filter: blur(32px) saturate(200%);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+    border: 1px solid rgba(42, 157, 143, 0.30);
+    border-radius: 20px;
+    box-shadow:
+      0 0 0 1px rgba(42, 157, 143, 0.10),
+      0 20px 60px rgba(0, 0, 0, 0.40),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  /* Subtle glass — navbar, pills, badges */
+  .glass-subtle {
+    background: rgba(26, 50, 62, 0.20);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(42, 157, 143, 0.12);
+    border-radius: 100px;
+  }
+
+  /* Warm accent border (::before) — used on featured cards */
+  .glass-accent-warm {
+    position: relative;
+  }
+  .glass-accent-warm::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #e76f51, #e9c46a);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box,
+                  linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Teal accent border */
+  .glass-accent-teal {
+    position: relative;
+  }
+  .glass-accent-teal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #2a9d8f, #264653);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box,
+                  linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Gradient text */
+  .text-grad-warm {
+    background: linear-gradient(135deg, #e76f51 0%, #e9c46a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-grad-teal {
+    background: linear-gradient(135deg, #2a9d8f 0%, #e9c46a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Section layout wrapper */
+  .section-container {
+    width: 90%;
+    margin-inline: auto;
+
+    @media (min-width: 1024px) {
+      @apply max-w-7xl ;
+    }
+    @media (min-width: 768px) {
+      margin-inline: 5%;
+    }
+  }
+
+  /* Eyebrow label */
+  .eyebrow {
+    @apply text-xs font-medium tracking-[0.12em] uppercase text-teal;
+    font-family: var(--font-inter);
+    font-size: calc(var(--hero-title-mobile-size) + 2px);
+    
+  }
+}
+
+/* ─── Custom Cursor Keyframes ─── */
+@keyframes cursor-ripple {
+  0% {
+    width: 0px;
+    height: 0px;
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    width: 90px;
+    height: 90px;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.animate-cursor-ripple {
+  animation: cursor-ripple 0.55s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+
+/* ─── Reduced motion overrides ─── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-left,
+  .animate-marquee-right {
+    animation-play-state: paused !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
