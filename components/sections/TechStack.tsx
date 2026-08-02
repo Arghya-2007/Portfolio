@@ -9,6 +9,7 @@ import SectionHeader from '@/components/ui/Typography/SectionHeader'
 import GlowOrb from '@/components/ui/Decorations/GlowOrb'
 import DotGrid from '@/components/ui/Backgrounds/DotGrid'
 import { useMotionConfig } from '@/hooks/useMotionConfig'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { cn } from '@/lib/utils'
 
 const CATEGORY_TABS = [
@@ -28,6 +29,7 @@ export default function TechStack() {
   const [activeCategory, setActiveCategory] = useState('frontend')
   const [searchQuery, setSearchQuery] = useState('')
   const { animationsEnabled } = useMotionConfig()
+  const isMobile = useIsMobile()
 
   // Flatten all skills
   const allSkills = useMemo(() => {
@@ -170,11 +172,70 @@ export default function TechStack() {
     return () => ctx.revert()
   }, [animationsEnabled, filteredSkills])
 
+  // ─── Auto-Scroll on Mobile for Skill Cards ────────────────────────────────
+  useEffect(() => {
+    if (!isMobile || !animationsEnabled || !gridRef.current || filteredSkills.length <= 1) return
+
+    let intervalId: NodeJS.Timeout
+    let isInteracting = false
+
+    const grid = gridRef.current
+
+    const handleInteractStart = () => { isInteracting = true }
+    const handleInteractEnd = () => { isInteracting = false }
+
+    grid.addEventListener('touchstart', handleInteractStart, { passive: true })
+    grid.addEventListener('touchend', handleInteractEnd)
+    grid.addEventListener('mousedown', handleInteractStart)
+    grid.addEventListener('mouseup', handleInteractEnd)
+    grid.addEventListener('mouseleave', handleInteractEnd)
+    grid.addEventListener('scroll', handleInteractStart, { passive: true })
+
+    // Use a secondary timeout to resume auto-scroll after interaction ends
+    let resumeTimeout: NodeJS.Timeout
+    const onScrollEnd = () => {
+      clearTimeout(resumeTimeout)
+      resumeTimeout = setTimeout(() => {
+        isInteracting = false
+      }, 1500)
+    }
+    grid.addEventListener('scroll', onScrollEnd, { passive: true })
+
+    intervalId = setInterval(() => {
+      if (isInteracting) return
+
+      const scrollLeft = grid.scrollLeft
+      const maxScroll = grid.scrollWidth - grid.clientWidth
+
+      // If we've reached the end, scroll back to start, else scroll one item
+      if (scrollLeft >= maxScroll - 10) {
+        grid.scrollTo({ left: 0, behavior: 'smooth' })
+      } else {
+        // Calculate dynamic card width including gap
+        const firstChild = grid.children[0] as HTMLElement
+        const cardWidth = firstChild ? firstChild.offsetWidth + 16 : 300
+        grid.scrollBy({ left: cardWidth, behavior: 'smooth' })
+      }
+    }, 3500)
+
+    return () => {
+      clearInterval(intervalId)
+      clearTimeout(resumeTimeout)
+      grid.removeEventListener('touchstart', handleInteractStart)
+      grid.removeEventListener('touchend', handleInteractEnd)
+      grid.removeEventListener('mousedown', handleInteractStart)
+      grid.removeEventListener('mouseup', handleInteractEnd)
+      grid.removeEventListener('mouseleave', handleInteractEnd)
+      grid.removeEventListener('scroll', handleInteractStart)
+      grid.removeEventListener('scroll', onScrollEnd)
+    }
+  }, [isMobile, animationsEnabled, filteredSkills])
+
   return (
     <section
       id="skills"
       ref={containerRef}
-      className="relative z-30 w-full min-h-screen bg-transparent -mt-[100vh] [perspective:1200px] pointer-events-auto"
+      className="relative z-30 w-full min-h-screen bg-transparent lg:-mt-[100vh] [perspective:1200px] pointer-events-auto"
       aria-label="Technical Skills and System Architecture"
     >
       {/* ─── Solid Curtain Wrapper ("Curtain Lift" Palette Cleanser) ─────── */}
@@ -194,20 +255,22 @@ export default function TechStack() {
         <GlowOrb color="gold" size={450} opacity={0.08} className="top-1/3 -right-32" />
         <GlowOrb color="coral" size={500} opacity={0.08} className="bottom-10 left-1/4" />
 
-        {/* Interactive React Bits DotGrid Background */}
-        <div className="absolute inset-0 pointer-events-none opacity-45 z-0 overflow-hidden">
-          <DotGrid
-            dotSize={8}
-            gap={28}
-            baseColor="#123440"
-            activeColor="#2a9d8f"
-            proximity={160}
-            shockRadius={260}
-            shockStrength={6}
-            resistance={900}
-            returnDuration={1.5}
-          />
-        </div>
+        {/* Interactive React Bits DotGrid Background - Disabled on mobile for performance */}
+        {!isMobile && (
+          <div className="absolute inset-0 pointer-events-none opacity-45 z-0 overflow-hidden">
+            <DotGrid
+              dotSize={8}
+              gap={28}
+              baseColor="#123440"
+              activeColor="#2a9d8f"
+              proximity={160}
+              shockRadius={260}
+              shockStrength={6}
+              resistance={900}
+              returnDuration={1.5}
+            />
+          </div>
+        )}
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
@@ -294,10 +357,15 @@ export default function TechStack() {
           {/* ─── Primary 3D Bento Skill Cards Grid ──────────────────────────── */}
           <div
             ref={gridRef}
-            className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            className="mt-8 sm:mt-12 flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory pb-6 sm:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           >
             {filteredSkills.map((skill, idx) => (
-              <SkillCard key={skill.name} skill={skill} index={idx} />
+              <SkillCard 
+                key={skill.name} 
+                skill={skill} 
+                index={idx} 
+                className="w-[75vw] max-w-[280px] sm:w-auto sm:max-w-none shrink-0 snap-center sm:snap-align-none" 
+              />
             ))}
           </div>
 
