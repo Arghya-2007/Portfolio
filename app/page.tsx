@@ -9,6 +9,9 @@ import { useLoadingStore } from '@/store/useLoadingStore'
 // Hero & TechStack use GSAP and browser APIs — load client-only
 const Hero = dynamic(() => import('@/components/sections/Hero'), { ssr: false })
 const TechStack = dynamic(() => import('@/components/sections/TechStack'), { ssr: false })
+const RoadMap = dynamic(() => import('@/components/sections/RoadMap'), { ssr: false })
+const ProjectWrapper = dynamic(() => import('@/components/Wrappers/ProjectWrapper'), { ssr: false })
+import TransitionWrapper from '@/components/Wrappers/TransitionWrapper'
 
 export default function HomePage() {
   useActiveSection()
@@ -23,7 +26,11 @@ export default function HomePage() {
       className="min-h-screen bg-surface-base origin-center"
     >
       <Hero />
-      <TechStack />
+      <TransitionWrapper>
+        <TechStack />
+        <RoadMap />
+      </TransitionWrapper>
+      <ProjectWrapper />
     </motion.main>
   )
 }

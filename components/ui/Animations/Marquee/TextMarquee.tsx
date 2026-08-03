@@ -3,7 +3,7 @@
 import React from 'react'
 
 interface TextMarqueeProps {
-  text: string
+  text: string | React.ReactNode
   repeat?: number
   separator?: React.ReactNode
   speedClassName?: string

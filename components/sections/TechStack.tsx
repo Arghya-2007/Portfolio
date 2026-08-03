@@ -8,6 +8,7 @@ import TechChip from '@/components/ui/Chip/TechChip'
 import SectionHeader from '@/components/ui/Typography/SectionHeader'
 import GlowOrb from '@/components/ui/Decorations/GlowOrb'
 import DotGrid from '@/components/ui/Backgrounds/DotGrid'
+import TrueFocus from '@/components/ui/Animations/TextAnimations/TrueFocus'
 import { useMotionConfig } from '@/hooks/useMotionConfig'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { cn } from '@/lib/utils'
@@ -176,7 +177,7 @@ export default function TechStack() {
   useEffect(() => {
     if (!isMobile || !animationsEnabled || !gridRef.current || filteredSkills.length <= 1) return
 
-    let intervalId: NodeJS.Timeout
+
     let isInteracting = false
 
     const grid = gridRef.current
@@ -201,7 +202,7 @@ export default function TechStack() {
     }
     grid.addEventListener('scroll', onScrollEnd, { passive: true })
 
-    intervalId = setInterval(() => {
+    const intervalId = setInterval(() => {
       if (isInteracting) return
 
       const scrollLeft = grid.scrollLeft
@@ -241,7 +242,7 @@ export default function TechStack() {
       {/* ─── Solid Curtain Wrapper ("Curtain Lift" Palette Cleanser) ─────── */}
       <div
         ref={curtainRef}
-        className="relative w-full min-h-screen overflow-hidden rounded-t-[36px] sm:rounded-t-[56px] bg-gradient-to-b from-[#08171e] via-[#051015] to-[#03090d] shadow-[0_-20px_50px_rgba(0,0,0,0.8)] border-t border-teal/40 pt-16 sm:pt-24 pb-24 will-change-transform"
+        className="relative w-full min-h-screen overflow-hidden rounded-t-[36px] sm:rounded-t-[56px] bg-gradient-to-b from-[#08171e] via-[#051015] to-[#03090d] shadow-[0_-20px_50px_rgba(0,0,0,0.8)] border-t border-teal/40 pt-16 sm:pt-24 pb-24 will-change-transform transform-gpu"
       >
         {/* Top Edge Specular Glow Beam */}
         <div
@@ -257,7 +258,7 @@ export default function TechStack() {
 
         {/* Interactive React Bits DotGrid Background - Disabled on mobile for performance */}
         {!isMobile && (
-          <div className="absolute inset-0 pointer-events-none opacity-45 z-0 overflow-hidden">
+          <div className="absolute inset-0 opacity-45 z-0 overflow-hidden">
             <DotGrid
               dotSize={8}
               gap={28}
@@ -272,7 +273,21 @@ export default function TechStack() {
           </div>
         )}
 
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* ─── Premium Background Text Marquee ───────────── */}
+        <div className="absolute top-10 sm:top-14 left-0 w-full overflow-hidden pointer-events-none select-none [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] z-0">
+          <div className="flex w-max shrink-0 animate-marquee-left [animation-duration:140s] gap-10 sm:gap-16 transform-gpu will-change-transform">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex gap-10 sm:gap-16 items-center text-[70px] sm:text-[130px] lg:text-[180px] font-black uppercase tracking-tighter whitespace-nowrap leading-[0.8] opacity-70 mix-blend-screen">
+                <span className="text-transparent" style={{ WebkitTextStroke: '2px rgba(255, 255, 255, 0.15)' }}>ARCHITECTURE</span>
+                <span className="text-transparent" style={{ WebkitTextStroke: '2px rgba(42, 157, 143, 0.6)' }}>ENGINEERING</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-b from-white/20 to-transparent">PERFORMANCE</span>
+                <span className="text-transparent" style={{ WebkitTextStroke: '2px rgba(56, 189, 248, 0.4)' }}>SCALABILITY</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-6 sm:mt-12">
           {/* Section Header */}
           <SectionHeader
             eyebrow="SYSTEM ARCHITECTURE & CAPABILITIES"
@@ -390,27 +405,57 @@ export default function TechStack() {
           {/* ─── Dual Infinite Marquee Streaming Ribbons ─────────────────────── */}
           <div className="mt-24 pt-12 border-t border-white/10">
             <div className="text-center mb-8">
-              <span className="eyebrow text-xs uppercase tracking-widest text-slate-400">
-                COMPLETE ECOSYSTEM &amp; TOOLING
-              </span>
+              <TrueFocus 
+                sentence="COMPLETE ECOSYSTEM & TOOLING"
+                manualMode={false}
+                blurAmount={2}
+                borderColor="#2a9d8f"
+                glowColor="rgba(42, 157, 143, 0.6)"
+                animationDuration={0.8}
+                pauseBetweenAnimations={0.5}
+                containerClassName="relative flex gap-3 sm:gap-4 justify-center items-center flex-wrap"
+                textClassName="eyebrow text-base sm:text-lg md:text-2xl uppercase tracking-widest text-slate-300 cursor-pointer font-bold"
+              />
             </div>
 
             {/* Lane 1: Leftward Streaming Marquee */}
-            <div className="group relative flex overflow-hidden py-3 [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] transform-gpu">
-              <div className="flex w-max shrink-0 animate-marquee-left gap-4 group-hover:[animation-play-state:paused] will-change-transform transform-gpu">
+            <div className="group relative flex overflow-hidden py-6 [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] transform-gpu">
+              <div className="flex w-max shrink-0 animate-marquee-left gap-6 sm:gap-10 group-hover:[animation-play-state:paused] will-change-transform transform-gpu">
                 {marqueeLane1.concat(marqueeLane1).map((item, idx) => (
-                  <TechChip key={`lane1-${item.name}-${idx}`} name={item.name} />
+                  <div key={`lane1-${item.name}-${idx}`} className="scale-[1.15] sm:scale-[1.4] origin-center mx-2 sm:mx-5">
+                    <TechChip name={item.name} />
+                  </div>
                 ))}
               </div>
             </div>
 
             {/* Lane 2: Rightward Streaming Marquee */}
-            <div className="group relative flex overflow-hidden py-3 mt-4 [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] transform-gpu">
-              <div className="flex w-max shrink-0 animate-marquee-right gap-4 group-hover:[animation-play-state:paused] will-change-transform transform-gpu">
+            <div className="group relative flex overflow-hidden py-6 mt-6 sm:mt-10 [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] transform-gpu">
+              <div className="flex w-max shrink-0 animate-marquee-right gap-6 sm:gap-10 group-hover:[animation-play-state:paused] will-change-transform transform-gpu">
                 {marqueeLane2.concat(marqueeLane2).map((item, idx) => (
-                  <TechChip key={`lane2-${item.name}-${idx}`} name={item.name} />
+                  <div key={`lane2-${item.name}-${idx}`} className="scale-[1.15] sm:scale-[1.4] origin-center mx-2 sm:mx-5">
+                    <TechChip name={item.name} />
+                  </div>
                 ))}
               </div>
+            </div>
+
+            {/* ─── Bottom Large Text Hover Effect ───────────────────────────── */}
+            <div className="mt-20 sm:mt-32 pb-4 sm:pb-8 flex justify-center w-full cursor-default group overflow-hidden">
+              <h2 className="relative text-[48px] sm:text-[90px] md:text-[130px] lg:text-[160px] font-black uppercase tracking-tighter select-none leading-none">
+                {/* Base text */}
+                <span className="text-[#0c1f26] group-hover:text-[#112a34] transition-colors duration-700 block">
+                  TECHNOLOGIES
+                </span>
+                
+                {/* Overlay white text, clipped to 0% width in the center, expands on hover */}
+                <span 
+                  className="absolute left-0 top-0 text-white w-full h-full [clip-path:inset(0_50%_0_50%)] group-hover:[clip-path:inset(0_0%_0_0%)] transition-all duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-center"
+                  aria-hidden="true"
+                >
+                  TECHNOLOGIES
+                </span>
+              </h2>
             </div>
           </div>
         </div>

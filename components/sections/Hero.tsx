@@ -12,7 +12,7 @@ import SectionHeader from '@/components/ui/Typography/SectionHeader'
 import TechChip from '@/components/ui/Chip/TechChip'
 import RotatingText from '@/components/ui/Animations/RotatingText/RotatingText'
 import TextMarquee from '@/components/ui/Animations/Marquee/TextMarquee'
-import FallingText from '@/components/ui/Animations/FallingText/FallingText'
+import FallingText from '@/components/ui/Animations/TextAnimations/FallingText'
 import VariableProximity from '@/components/ui/Animations/VariableProximity/VariableProximity'
 
 import { useMotionConfig } from '@/hooks/useMotionConfig'
