@@ -16,6 +16,12 @@ export default function TransitionWrapper({ children }: TransitionWrapperProps) 
 
   // Wait for dynamic children (Hero and TechStack) to fully render their layout
   const [isReady, setIsReady] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     // Poll to ensure both Hero (pushes this container down) and TechStack (gives this container height) are rendered
@@ -38,7 +44,7 @@ export default function TransitionWrapper({ children }: TransitionWrapperProps) 
   }, [])
 
   useGSAP(() => {
-    if (!animationsEnabled || !isReady) return
+    if (!mounted || !animationsEnabled || !isReady) return
 
     const container = containerRef.current
     const topLayer = topLayerRef.current
@@ -103,7 +109,7 @@ export default function TransitionWrapper({ children }: TransitionWrapperProps) 
       })
     }
 
-  }, { scope: containerRef, dependencies: [animationsEnabled, isReady] })
+  }, { scope: containerRef, dependencies: [animationsEnabled, isReady, mounted] })
 
   useEffect(() => {
     // Force refresh after initial setup
@@ -135,27 +141,16 @@ export default function TransitionWrapper({ children }: TransitionWrapperProps) 
       ro.disconnect()
       clearTimeout(resizeTimer)
     }
-  }, [animationsEnabled, isReady])
+  }, [animationsEnabled, isReady, mounted])
 
   const childArray = React.Children.toArray(children)
 
-  if (!animationsEnabled) {
-    return (
-      <div className="relative w-full flex flex-col bg-black">
-        <div className="relative w-full z-10 bg-surface-base">
-          {childArray[0]}
-        </div>
-        <div className="relative w-full z-0 overflow-hidden">
-          {childArray[1]}
-        </div>
-      </div>
-    )
-  }
+  const showAnimatedLayout = mounted && animationsEnabled && isReady;
 
   return (
     // flow-root creates a Block Formatting Context (BFC) which prevents TechStack's negative top margin
     // from collapsing and pulling this container up.
-    <div ref={containerRef} className="relative w-full flow-root bg-black">
+    <div ref={containerRef} className={`relative w-full ${showAnimatedLayout ? 'flow-root' : 'flex flex-col'} bg-black`}>
       {/* 
         Top Layer: TechStack 
         Placed in normal document flow. Will slide purely LEFT while the container is pinned.
@@ -170,7 +165,7 @@ export default function TransitionWrapper({ children }: TransitionWrapperProps) 
         Because the container is pinned (viewport pauses), RoadMap will be perfectly stationary!
         No upward/top sliding whatsoever.
       */}
-      <div className="absolute bottom-0 left-0 w-full h-screen z-0">
+      <div className={showAnimatedLayout ? "absolute bottom-0 left-0 w-full h-screen z-0" : "relative w-full z-0 overflow-hidden"}>
         {childArray[1]}
       </div>
     </div>
