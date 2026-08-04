@@ -13,10 +13,13 @@ interface LoadingStore {
   progress: number
   status: LoadingStatus
 
+  mountedComponents: Record<string, boolean>
+
   setProgress: (progress: number) => void
   setStatus: (status: LoadingStatus) => void
   setIsLoading: (loading: boolean) => void
   setComplete: () => void
+  setComponentMounted: (componentName: string) => void
 }
 
 export const useLoadingStore = create<LoadingStore>((set) => ({
@@ -24,6 +27,7 @@ export const useLoadingStore = create<LoadingStore>((set) => ({
   isComplete: false,
   progress: 0,
   status: 'INITIALIZING ENVIRONMENT',
+  mountedComponents: {},
 
   setProgress: (progress: number) =>
     set({ progress: Math.min(100, Math.max(0, progress)) }),
@@ -33,4 +37,9 @@ export const useLoadingStore = create<LoadingStore>((set) => ({
   setIsLoading: (isLoading: boolean) => set({ isLoading }),
 
   setComplete: () => set({ isLoading: false, isComplete: true }),
+
+  setComponentMounted: (componentName: string) =>
+    set((state) => ({
+      mountedComponents: { ...state.mountedComponents, [componentName]: true },
+    })),
 }))

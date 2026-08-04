@@ -1,11 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import VariableProximity from "@/components/ui/Animations/VariableProximity/VariableProximity";
+import { useLoadingStore } from "@/store/useLoadingStore";
 
 export default function ProjectWrapper() {
   const containerRef = useRef<HTMLElement>(null);
+  const setComponentMounted = useLoadingStore((state) => state.setComponentMounted);
+
+  useEffect(() => {
+    setComponentMounted("projectWrapper");
+  }, [setComponentMounted]);
 
   return (
     <section 

@@ -20,6 +20,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 import { useImageSequence } from '@/hooks/useImageSequence'
 import { useLenis } from '@/components/providers/LenisProvider'
 import { useAnimationStore } from '@/store/useAnimationStore'
+import { useLoadingStore } from '@/store/useLoadingStore'
 import { profile, stats, skillCategories, social } from '@/lib/content'
 
 // ─── Inline SVG Icons (lucide-react does not include brand icons) ────────────
@@ -448,6 +449,11 @@ function Hero() {
   const { animationsEnabled, imageSequenceEnabled, basicAnimations } = useMotionConfig()
   const isMobile = useIsMobile()
   const lenis = useLenis()
+  const setComponentMounted = useLoadingStore((state) => state.setComponentMounted)
+
+  useEffect(() => {
+    setComponentMounted('hero')
+  }, [setComponentMounted])
 
   // ── Refs ─────────────────────────────────────────────────────────────────
   const sectionRef = useRef<HTMLElement>(null)
@@ -549,25 +555,6 @@ function Hero() {
         // ── Compute billboard → hero name transform values ──────────
         const billboardEl = billboardNameRef.current
         const heroSmallEl = heroNameSmallRef.current
-
-        let computedX = 0
-        let computedY = 0
-        let computedScaleRatio = 0.45
-
-        if (billboardEl && heroSmallEl) {
-          const billboardRect = billboardEl.getBoundingClientRect()
-          const heroSmallRect = heroSmallEl.getBoundingClientRect()
-
-          computedScaleRatio = heroSmallRect.width / billboardRect.width
-
-          // Offset from center of viewport to center of heroNameSmall
-          computedX = Math.round(
-            heroSmallRect.left + heroSmallRect.width / 2 - window.innerWidth / 2
-          )
-          computedY = Math.round(
-            heroSmallRect.top + heroSmallRect.height / 2 - window.innerHeight / 2
-          )
-        }
 
         // ── ScrollTrigger config ────────────────────────────────────
         const scrollEnd = frames.length * SCROLL_PER_FRAME

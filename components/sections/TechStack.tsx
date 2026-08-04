@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useRef, useState, useMemo, useEffect, useCallback } from 'react'
+import React, { useRef, useState, useMemo, useEffect } from 'react'
 import { gsap, ScrollTrigger } from '@/lib/gsap/gsap.config'
-import { skillCategories, Skill } from '@/lib/content'
+import { skillCategories } from '@/lib/content'
 import SkillCard from '@/components/ui/Chip/SkillCard'
 import TechChip from '@/components/ui/Chip/TechChip'
 import SectionHeader from '@/components/ui/Typography/SectionHeader'
@@ -12,6 +12,7 @@ import TrueFocus from '@/components/ui/Animations/TextAnimations/TrueFocus'
 import { useMotionConfig } from '@/hooks/useMotionConfig'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { cn } from '@/lib/utils'
+import { useLoadingStore } from '@/store/useLoadingStore'
 
 const CATEGORY_TABS = [
   { id: 'frontend', label: 'Frontend & UI' },
@@ -31,6 +32,11 @@ export default function TechStack() {
   const [searchQuery, setSearchQuery] = useState('')
   const { animationsEnabled } = useMotionConfig()
   const isMobile = useIsMobile()
+  const setComponentMounted = useLoadingStore((state) => state.setComponentMounted)
+
+  useEffect(() => {
+    setComponentMounted('techStack')
+  }, [setComponentMounted])
 
   // Flatten all skills
   const allSkills = useMemo(() => {

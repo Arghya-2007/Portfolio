@@ -2,12 +2,14 @@
 
 import React, { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { useMotionConfig } from '@/hooks/useMotionConfig'
 import { ScrollTrigger } from '@/lib/gsap/gsap.config'
 import Aurora from '../ui/Backgrounds/Aurora'
 import ImageTrail from '../ui/Animations/HoverEffects/ImageTrail'
 import TextMarquee from '../ui/Animations/Marquee/TextMarquee'
 import { CheckCircle2, RefreshCw, Target, Flag, Sparkles } from 'lucide-react'
+import { useLoadingStore } from '@/store/useLoadingStore'
 
 const roadmapData = [
   {
@@ -77,6 +79,11 @@ export default function RoadMap() {
   const horizontalRef = useRef<HTMLDivElement>(null)
   const verticalRef = useRef<HTMLDivElement>(null)
   const { animationsEnabled } = useMotionConfig()
+  const setComponentMounted = useLoadingStore((state) => state.setComponentMounted)
+
+  useEffect(() => {
+    setComponentMounted('roadMap')
+  }, [setComponentMounted])
 
   useEffect(() => {
     if (!verticalRef.current) return
@@ -188,7 +195,7 @@ export default function RoadMap() {
                 transition={{ delay: 0.5, duration: 0.6 }}
                 className="text-base md:text-lg text-gray-500 font-medium tracking-wide leading-relaxed"
               >
-                Every line of code is a step toward autonomous systems. It's not just about building applications; it's about engineering the future and pushing the boundaries of what's possible.
+                Every line of code is a step toward autonomous systems. It&apos;s not just about building applications; it&apos;s about engineering the future and pushing the boundaries of what&apos;s possible.
               </motion.p>
 
               <motion.div 
@@ -269,10 +276,12 @@ export default function RoadMap() {
                       </div>
                       <div className="mt-6 flex-1 w-full relative min-h-[120px] rounded-2xl overflow-hidden border border-white/10 group hidden md:block">
                         <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none" />
-                        <img 
+                        <Image 
                           src={item.image} 
                           alt={item.title} 
-                          className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700 ease-out" 
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover opacity-80 group-hover:scale-110 transition-transform duration-700 ease-out" 
                         />
                       </div>
                     </div>

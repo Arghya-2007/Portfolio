@@ -20,7 +20,7 @@ const STATUS_STAGES: { threshold: number; status: LoadingStatus }[] = [
 ]
 
 export default function LoadingScreen() {
-  const { isLoading, progress, status, setProgress, setStatus, setComplete } = useLoadingStore()
+  const { isLoading, progress, status, setProgress, setStatus, setComplete, mountedComponents } = useLoadingStore()
   const gpuTier = useAnimationStore((state) => state.gpuTier)
 
   const [assetsReady, setAssetsReady] = useState(false)
@@ -97,8 +97,14 @@ export default function LoadingScreen() {
       // Ease out cubic progression
       const easeProgress = 1 - Math.pow(1 - timeRatio, 3)
 
-      // Target progress is capped at 88% until actual assets are confirmed ready
-      const maxAllowed = assetsReady ? 100 : 88
+      const allComponentsMounted = 
+        mountedComponents['hero'] && 
+        mountedComponents['techStack'] && 
+        mountedComponents['roadMap'] && 
+        mountedComponents['projectWrapper']
+
+      // Target progress is capped at 88% until actual assets are confirmed ready and dynamic components are mounted
+      const maxAllowed = (assetsReady && allComponentsMounted) ? 100 : 88
       const calculated = Math.min(maxAllowed, Math.round(easeProgress * 100))
 
       if (calculated > progressRef.current) {
@@ -137,7 +143,7 @@ export default function LoadingScreen() {
       }
       document.body.style.overflow = originalOverflow
     }
-  }, [assetsReady, isLoading, setProgress, setStatus, setComplete])
+  }, [assetsReady, isLoading, setProgress, setStatus, setComplete, mountedComponents, status])
 
   if (!isLoading) return null
 
