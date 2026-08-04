@@ -40,8 +40,11 @@ export default function LoadingScreen() {
           await document.fonts.ready
         }
 
-        // 2. Preload first 24 essential frames without blocking CPU/GPU
-        const initialFrames = CRITICAL_FRAMES.slice(0, 24)
+        // 2. Preload essential frames without blocking CPU/GPU
+        // On mobile, the hero animation is disabled, so we only need the first frame.
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+        const initialFrames = isMobile ? CRITICAL_FRAMES.slice(0, 1) : CRITICAL_FRAMES.slice(0, 24)
+        
         const imagePromises = initialFrames.map((src) => {
           return new Promise<void>((resolve) => {
             const img = new Image()
@@ -60,10 +63,16 @@ export default function LoadingScreen() {
         // 3. Queue remainder in background during idle time
         if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
           window.requestIdleCallback(() => {
-            CRITICAL_FRAMES.slice(24).forEach((src) => {
-              const img = new Image()
-              img.src = src
-            })
+            // Prevent Out-Of-Memory (OOM) crashes on low/mid-end mobile devices
+            // Mobile doesn't use the frame sequence, so skip background loading entirely.
+            const isMobile = window.innerWidth < 768
+            
+            if (!isMobile) {
+              CRITICAL_FRAMES.slice(24).forEach((src) => {
+                const img = new Image()
+                img.src = src
+              })
+            }
           })
         }
       } catch {
@@ -172,9 +181,9 @@ export default function LoadingScreen() {
           style={{ width: '100vw', height: '100vh' }}
         >
           {/* ── Ambient Background Glows ── */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal/15 rounded-full blur-[140px] pointer-events-none" />
-          <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-[#e76f51]/10 rounded-full blur-[120px] pointer-events-none" />
-          <div className="absolute bottom-1/4 right-1/3 translate-x-1/2 translate-y-1/2 w-[400px] h-[400px] bg-[#e9c46a]/10 rounded-full blur-[130px] pointer-events-none" />
+          <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal/15 rounded-full blur-[140px] pointer-events-none" />
+          <div className="hidden md:block absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-[#e76f51]/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="hidden md:block absolute bottom-1/4 right-1/3 translate-x-1/2 translate-y-1/2 w-[400px] h-[400px] bg-[#e9c46a]/10 rounded-full blur-[130px] pointer-events-none" />
 
           {/* ── Subtle Background Architectural Grid ── */}
           <div

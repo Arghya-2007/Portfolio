@@ -27,7 +27,7 @@ export default function ProjectWrapper() {
           y: ["0%", "-5%", "0%"],
         }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -top-[10%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-purple-700/40 blur-[120px] mix-blend-screen pointer-events-none"
+        className="hidden md:block absolute -top-[10%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-purple-700/40 blur-[120px] mix-blend-screen pointer-events-none"
       />
       <motion.div
         animate={{
@@ -37,7 +37,7 @@ export default function ProjectWrapper() {
           y: ["0%", "5%", "0%"],
         }}
         transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="absolute -bottom-[10%] -right-[10%] w-[70vw] h-[70vw] rounded-full bg-blue-700/40 blur-[130px] mix-blend-screen pointer-events-none"
+        className="hidden md:block absolute -bottom-[10%] -right-[10%] w-[70vw] h-[70vw] rounded-full bg-blue-700/40 blur-[130px] mix-blend-screen pointer-events-none"
       />
       <motion.div
         animate={{
@@ -45,7 +45,7 @@ export default function ProjectWrapper() {
           opacity: [0.3, 0.5, 0.3],
         }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 4 }}
-        className="absolute top-[20%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-rose-600/30 blur-[100px] mix-blend-screen pointer-events-none"
+        className="hidden md:block absolute top-[20%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-rose-600/30 blur-[100px] mix-blend-screen pointer-events-none"
       />
 
       {/* Subtle grid pattern overlay */}
@@ -71,12 +71,12 @@ export default function ProjectWrapper() {
         >
           <VariableProximity
             label="My Projects"
-            className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 pb-6 inline-block"
+            className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 pb-6 pr-8 inline-block"
             fromFontVariationSettings="'wght' 400, 'opsz' 9"
             toFontVariationSettings="'wght' 1000, 'opsz' 40"
             containerRef={containerRef}
-            radius={150}
-            falloff="linear"
+            radius={250}
+            falloff="gaussian"
           />
         </motion.h1>
       </div>

@@ -307,8 +307,8 @@ export default function RoadMap() {
         {/* Premium Marquee Banner */}
         <div className="relative w-full mt-12 md:mt-32 py-8 border-y border-white/5 bg-white/[0.02] backdrop-blur-sm overflow-hidden flex items-center justify-center transform-gpu will-change-transform">
           {/* Subtle Glow Effects */}
-          <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-64 h-32 bg-purple-500/10 blur-[100px] rounded-full pointer-events-none" />
-          <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-64 h-32 bg-blue-500/10 blur-[100px] rounded-full pointer-events-none" />
+          <div className="hidden md:block absolute top-1/2 left-1/4 -translate-y-1/2 w-64 h-32 bg-purple-500/10 blur-[100px] rounded-full pointer-events-none" />
+          <div className="hidden md:block absolute top-1/2 right-1/4 -translate-y-1/2 w-64 h-32 bg-blue-500/10 blur-[100px] rounded-full pointer-events-none" />
           
           <TextMarquee 
             text={

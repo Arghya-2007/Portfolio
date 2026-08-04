@@ -228,6 +228,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
                       display: 'inline-block',
                       fontVariationSettings: fromFontVariationSettings,
                       willChange: 'font-variation-settings',
+                      transition: 'font-variation-settings 0.3s ease-out',
                     }}
                     aria-hidden="true"
                   >
