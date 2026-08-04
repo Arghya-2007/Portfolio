@@ -8,8 +8,6 @@ import LoadingScreen from '@/components/layout/LoadingScreen'
 import { AnimationProvider } from '@/components/providers/AnimationProvider'
 import { LenisProvider } from '@/components/providers/LenisProvider'
 import { MotionProvider } from '@/components/providers/MotionProvider'
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
 
 import '@/app/globals.css'
 

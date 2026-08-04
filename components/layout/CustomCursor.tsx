@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useMotionConfig } from '@/hooks/useMotionConfig'
 import SplashCursor from './SplashCursor'
+import { useLoadingStore } from '@/store/useLoadingStore'
 
 type CursorMode = 'default' | 'pointer' | 'text' | 'view' | 'drag' | 'custom' | 'hidden'
 
@@ -27,6 +28,7 @@ const PARTICLE_COLORS = ['#2a9d8f', '#e9c46a', '#e76f51', '#f0f4f5', '#48cae4']
 
 export default function CustomCursor() {
   const { cursorEnabled } = useMotionConfig()
+  const isProjectSectionInView = useLoadingStore((state) => state.isProjectSectionInView)
 
   // References
   const auraRef = useRef<HTMLDivElement>(null)
@@ -87,7 +89,7 @@ export default function CustomCursor() {
   }, [])
 
   useEffect(() => {
-    if (!cursorEnabled) return
+    if (!cursorEnabled || isProjectSectionInView) return
 
     // Add global body class to suppress default OS cursor
     document.body.classList.add('custom-cursor-active')
@@ -133,7 +135,7 @@ export default function CustomCursor() {
       if (!target) return
 
       // 0. Disable custom cursor entirely
-      if (target.closest('.disable-custom-cursor')) {
+      if (target.closest('.disable-custom-cursor, #sheryjs, .controlKit, .dg.ac, .lil-gui')) {
         state.mode = 'hidden'
         setCursorMode('hidden')
         state.magneticCenter = null
@@ -378,31 +380,31 @@ export default function CustomCursor() {
       document.removeEventListener('mouseenter', handleMouseEnter)
       cancelAnimationFrame(animationFrameId)
     }
-  }, [cursorEnabled, spawnParticles])
+  }, [cursorEnabled, isProjectSectionInView, spawnParticles])
 
-  if (!cursorEnabled) return null
+  if (!cursorEnabled || isProjectSectionInView) return null
 
   return (
     <>
       {/* 1. Fluid Splash Effect (Preserved completely) */}
       <div 
-        className="pointer-events-none fixed inset-0 z-[9994] transition-opacity duration-300"
+        className="!pointer-events-none fixed inset-0 z-[9994] transition-opacity duration-300"
         style={{ opacity: cursorMode === 'hidden' ? 0 : 1 }}
       >
-        <SplashCursor COLOR="#2a9d8f" RAINBOW_MODE={false} />
+        {cursorMode !== 'hidden' && <SplashCursor COLOR="#2a9d8f" RAINBOW_MODE={false} />}
       </div>
 
       {/* 2. Cosmic Stardust Particle Canvas */}
       <canvas
         ref={canvasRef}
-        className="pointer-events-none fixed inset-0 z-[9995] transition-opacity duration-300"
+        className="!pointer-events-none fixed inset-0 z-[9995] transition-opacity duration-300"
         style={{ opacity: isVisible && cursorMode !== 'hidden' ? 1 : 0 }}
       />
 
       {/* 3. Ambient Luminous Aura (Soft glowing atmospheric trail) */}
       <div
         ref={auraRef}
-        className="pointer-events-none fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 z-[9996] transition-opacity duration-500 will-change-transform"
+        className="!pointer-events-none fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 z-[9996] transition-opacity duration-500 will-change-transform"
         style={{ opacity: isVisible ? (cursorMode === 'hidden' ? 0 : 0.85) : 0 }}
       >
         <div
@@ -418,7 +420,7 @@ export default function CustomCursor() {
       </div>
 
       {/* 4. Click Shockwave Ripples */}
-      <div className="pointer-events-none fixed inset-0 z-[9997] overflow-hidden">
+      <div className="!pointer-events-none fixed inset-0 z-[9997] overflow-hidden">
         {ripples.map((ripple) => (
           <div
             key={ripple.id}
@@ -435,7 +437,7 @@ export default function CustomCursor() {
       {/* 5. Outer HUD Reticle & Context Morphing Layer */}
       <div
         ref={outerRef}
-        className="pointer-events-none fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 z-[9998] flex items-center justify-center will-change-transform"
+        className="!pointer-events-none fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 z-[9998] flex items-center justify-center will-change-transform"
         style={{
           opacity: isVisible && cursorMode !== 'hidden' ? 1 : 0,
           transition: 'opacity 0.25s ease-out, width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -563,7 +565,7 @@ export default function CustomCursor() {
       {/* 6. High-Precision Snappy Core Jewel (Zero-Lag Center Dot) */}
       <div
         ref={innerRef}
-        className="pointer-events-none fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 z-[9999] will-change-transform transition-[opacity,transform] duration-150"
+        className="!pointer-events-none fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 z-[9999] will-change-transform transition-[opacity,transform] duration-150"
         style={{
           opacity: isVisible && cursorMode !== 'text' && cursorMode !== 'hidden' && cursorMode !== 'view' ? 1 : 0,
         }}

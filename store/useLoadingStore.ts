@@ -14,12 +14,14 @@ interface LoadingStore {
   status: LoadingStatus
 
   mountedComponents: Record<string, boolean>
+  isProjectSectionInView: boolean
 
   setProgress: (progress: number) => void
   setStatus: (status: LoadingStatus) => void
   setIsLoading: (loading: boolean) => void
   setComplete: () => void
   setComponentMounted: (componentName: string) => void
+  setIsProjectSectionInView: (inView: boolean) => void
 }
 
 export const useLoadingStore = create<LoadingStore>((set) => ({
@@ -28,6 +30,7 @@ export const useLoadingStore = create<LoadingStore>((set) => ({
   progress: 0,
   status: 'INITIALIZING ENVIRONMENT',
   mountedComponents: {},
+  isProjectSectionInView: false,
 
   setProgress: (progress: number) =>
     set({ progress: Math.min(100, Math.max(0, progress)) }),
@@ -42,4 +45,6 @@ export const useLoadingStore = create<LoadingStore>((set) => ({
     set((state) => ({
       mountedComponents: { ...state.mountedComponents, [componentName]: true },
     })),
+
+  setIsProjectSectionInView: (inView: boolean) => set({ isProjectSectionInView: inView }),
 }))

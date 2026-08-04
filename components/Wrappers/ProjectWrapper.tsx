@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useRef, useEffect } from "react";
 import VariableProximity from "@/components/ui/Animations/VariableProximity/VariableProximity";
 import { useLoadingStore } from "@/store/useLoadingStore";
@@ -80,32 +80,42 @@ function ProjectWrapperContent({ containerRef }: { containerRef: React.RefObject
 export default function ProjectWrapper() {
   const containerRef = useRef<HTMLElement>(null);
   const setComponentMounted = useLoadingStore((state) => state.setComponentMounted);
+  const setIsProjectSectionInView = useLoadingStore((state) => state.setIsProjectSectionInView);
 
   useEffect(() => {
     setComponentMounted("projectWrapper");
   }, [setComponentMounted]);
 
-  // Track the scroll progress over the 250vh container
+  const isInView = useInView(containerRef, { margin: "-20%" });
+
+  useEffect(() => {
+    setIsProjectSectionInView(isInView);
+    // Cleanup on unmount
+    return () => setIsProjectSectionInView(false);
+  }, [isInView, setIsProjectSectionInView]);
+
+  // Track the scroll progress over the 500vh container
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
 
-  // Delay the animation until 40% scroll progress to let the user interact with the text.
-  // Top half slides UP by 100% of its height (50vh) -> out of view
-  const topY = useTransform(scrollYProgress, [0.4, 1], ["0%", "-100%"]);
-  
+  // Delay the animation until 20% scroll progress to let the user interact with the text.
+  // The halves will be fully open by 40% scroll progress.
+  // This leaves 60% of the scroll space (300vh) as a buffer for the user to tap through projects.
+  const topY = useTransform(scrollYProgress, [0.2, 0.4], ["0%", "-100%"]);
+
   // Bottom half slides DOWN by 100% of its height (50vh) -> out of view
-  const bottomY = useTransform(scrollYProgress, [0.4, 1], ["0%", "100%"]);
+  const bottomY = useTransform(scrollYProgress, [0.2, 0.4], ["0%", "100%"]);
 
   return (
-    <section 
+    <section
       ref={containerRef}
-      className="relative h-[250vh] w-full bg-black disable-custom-cursor"
+      className="relative h-[500vh] w-full bg-transparent disable-custom-cursor"
     >
       {/* Sticky container that holds the animation while scrolling */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        
+
         {/* REVEALED CONTENT (PROJECTS) */}
         {/* It stays in the background and is revealed as the halves split */}
         <div className="absolute inset-0 z-0">
@@ -113,7 +123,7 @@ export default function ProjectWrapper() {
         </div>
 
         {/* TOP HALF SPLIT */}
-        <motion.div 
+        <motion.div
           className="absolute top-0 left-0 w-full h-[50vh] overflow-hidden z-10"
           style={{ y: topY }}
         >
@@ -121,13 +131,13 @@ export default function ProjectWrapper() {
           <div className="absolute top-0 left-0 w-full h-[100vh]">
             <ProjectWrapperContent containerRef={containerRef} />
           </div>
-          
+
           {/* Subtle line at the split edge for premium feel */}
           <div className="absolute bottom-0 left-0 w-full h-[1px] bg-white/20 shadow-[0_0_20px_rgba(255,255,255,0.4)] z-20" />
         </motion.div>
 
         {/* BOTTOM HALF SPLIT */}
-        <motion.div 
+        <motion.div
           className="absolute bottom-0 left-0 w-full h-[50vh] overflow-hidden z-10"
           style={{ y: bottomY }}
         >
@@ -139,7 +149,7 @@ export default function ProjectWrapper() {
           {/* Subtle line at the split edge for premium feel */}
           <div className="absolute top-0 left-0 w-full h-[1px] bg-white/20 shadow-[0_0_20px_rgba(255,255,255,0.4)] z-20" />
         </motion.div>
-        
+
       </div>
     </section>
   );

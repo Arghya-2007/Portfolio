@@ -7,12 +7,31 @@ const nextConfig: NextConfig = {
   // Compress output
   compress: true,
 
+  transpilePackages: ['sheryjs'],
+
   images: {
     formats: ['image/webp', 'image/avif',],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     qualities: [75, 85],
     minimumCacheTTL: 60 * 60 * 24 * 30,
+  },
+
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.(glsl|vs|fs|vert|frag)$/,
+      type: 'asset/source',
+    });
+    return config;
+  },
+
+  turbopack: {
+    rules: {
+      '*.glsl': {
+        loaders: ['raw-loader'],
+        as: '*.js',
+      },
+    },
   },
 
   // Headers for security and performance

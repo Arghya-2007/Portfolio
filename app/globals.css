@@ -8,29 +8,29 @@
 @layer base {
   :root {
     /* Brand colors */
-    --color-ocean:  #264653;
-    --color-teal:   #2a9d8f;
-    --color-gold:   #e9c46a;
-    --color-sand:   #f4a261;
-    --color-coral:  #e76f51;
+    --color-ocean: #264653;
+    --color-teal: #2a9d8f;
+    --color-gold: #e9c46a;
+    --color-sand: #f4a261;
+    --color-coral: #e76f51;
 
     /* Surfaces */
     --surface-base: #0d1f26;
     --surface-deep: #152e38;
-    --surface-mid:  #1c3d4a;
+    --surface-mid: #1c3d4a;
     --surface-glass: rgba(26, 50, 62, 0.35);
     --surface-glass-hover: rgba(26, 50, 62, 0.50);
 
     /* Text */
-    --text-primary:   #f0f4f5;
+    --text-primary: #f0f4f5;
     --text-secondary: #8faab3;
-    --text-muted:     #4d6b75;
-    --text-accent:    #2a9d8f;
+    --text-muted: #4d6b75;
+    --text-accent: #2a9d8f;
 
     /* Gradients */
-    --grad-warm:  linear-gradient(135deg, #e76f51 0%, #e9c46a 100%);
-    --grad-teal:  linear-gradient(135deg, #2a9d8f 0%, #264653 100%);
-    --grad-dark:  linear-gradient(180deg, #0d1f26 0%, #152e38 50%, #0d1f26 100%);
+    --grad-warm: linear-gradient(135deg, #e76f51 0%, #e9c46a 100%);
+    --grad-teal: linear-gradient(135deg, #2a9d8f 0%, #264653 100%);
+    --grad-dark: linear-gradient(180deg, #0d1f26 0%, #152e38 50%, #0d1f26 100%);
 
     /* Spacing */
     --space-section: 96px;
@@ -43,7 +43,8 @@
   }
 
   html {
-    scroll-behavior: auto; /* Lenis handles smooth scroll — disable native */
+    scroll-behavior: auto;
+    /* Lenis handles smooth scroll — disable native */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -67,20 +68,41 @@
 
   body.custom-cursor-active .disable-custom-cursor,
   body.custom-cursor-active .disable-custom-cursor * {
+    cursor: none !important;
+  }
+
+  body.custom-cursor-active #sheryjs,
+  body.custom-cursor-active #sheryjs *,
+  body.custom-cursor-active .controlKit,
+  body.custom-cursor-active .controlKit * {
     cursor: auto !important;
+  }
+
+  /* SheryJS Gooey effect — hide OS cursor, let WebGL canvas capture events */
+  .shery-projects-images {
+    cursor: none !important;
+  }
+
+  .shery-projects-images canvas {
+    pointer-events: auto !important;
+    z-index: 10 !important;
+    position: relative !important;
   }
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
   }
+
   ::-webkit-scrollbar-track {
     background: var(--surface-base);
   }
+
   ::-webkit-scrollbar-thumb {
     background: rgba(42, 157, 143, 0.40);
     border-radius: 100px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(42, 157, 143, 0.70);
   }
@@ -94,6 +116,7 @@
 
 /* ─── Glass Utility Classes ─── */
 @layer components {
+
   /* Base glass — used on most cards */
   .glass {
     background: rgba(26, 50, 62, 0.35);
@@ -129,6 +152,7 @@
   .glass-accent-warm {
     position: relative;
   }
+
   .glass-accent-warm::before {
     content: '';
     position: absolute;
@@ -137,7 +161,7 @@
     padding: 1px;
     background: linear-gradient(135deg, #e76f51, #e9c46a);
     -webkit-mask: linear-gradient(#fff 0 0) content-box,
-                  linear-gradient(#fff 0 0);
+      linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     opacity: 0.6;
@@ -149,6 +173,7 @@
   .glass-accent-teal {
     position: relative;
   }
+
   .glass-accent-teal::before {
     content: '';
     position: absolute;
@@ -157,7 +182,7 @@
     padding: 1px;
     background: linear-gradient(135deg, #2a9d8f, #264653);
     -webkit-mask: linear-gradient(#fff 0 0) content-box,
-                  linear-gradient(#fff 0 0);
+      linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     opacity: 0.5;
@@ -186,8 +211,9 @@
     margin-inline: auto;
 
     @media (min-width: 1024px) {
-      @apply max-w-7xl ;
+      @apply max-w-7xl;
     }
+
     @media (min-width: 768px) {
       margin-inline: 5%;
     }
@@ -198,7 +224,7 @@
     @apply text-xs font-medium tracking-[0.12em] uppercase text-teal;
     font-family: var(--font-inter);
     font-size: calc(var(--hero-title-mobile-size) + 2px);
-    
+
   }
 }
 
@@ -210,9 +236,11 @@
     opacity: 0.9;
     transform: translate(-50%, -50%) scale(0.4);
   }
+
   50% {
     opacity: 0.6;
   }
+
   100% {
     width: 90px;
     height: 90px;
@@ -227,6 +255,7 @@
 
 /* ─── Reduced motion overrides ─── */
 @media (prefers-reduced-motion: reduce) {
+
   .animate-marquee-left,
   .animate-marquee-right {
     animation-play-state: paused !important;
@@ -238,5 +267,48 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── SheryJS GUI Overrides ─── */
+.dg.ac,
+.lil-gui,
+#controlKit,
+.controlKit {
+  z-index: 9999999 !important;
+  pointer-events: auto !important;
+  cursor: auto !important;
+}
+
+/* ─── SheryJS Project Container Utilities ─── */
+@layer utilities {
+
+  /* Structure layout parameters for project background display nodes */
+  .project-bg-container {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Force SheryJS dynamic canvas layer formatting */
+  .project-bg-container canvas {
+    pointer-events: auto !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 10 !important;
+  }
+
+  /* Project content positioning hierarchy overlay */
+  .project-content-overlay {
+    position: relative;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  /* Reactivate pointer events for interior clickable items */
+  .project-content-overlay a,
+  .project-content-overlay button {
+    pointer-events: auto;
   }
 }

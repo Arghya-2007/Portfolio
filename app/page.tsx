@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 
 import { useActiveSection } from '@/hooks/useActiveSection'
 import { useLoadingStore } from '@/store/useLoadingStore'
+import Contact from '@/components/sections/Contact'
 
 // Hero & TechStack use GSAP and browser APIs — load client-only
 const Hero = dynamic(() => import('@/components/sections/Hero'), { ssr: false })
@@ -23,7 +24,7 @@ export default function HomePage() {
       initial={{ opacity: 0.8, scale: 0.99 }}
       animate={isComplete ? { opacity: 1, scale: 1, transitionEnd: { transform: 'none' } } : { opacity: 0.8, scale: 0.99 }}
       transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-      className="min-h-screen bg-surface-base origin-center"
+      className="relative z-10 min-h-screen origin-center"
     >
       <Hero />
       <TransitionWrapper>
@@ -31,7 +32,7 @@ export default function HomePage() {
         <RoadMap />
       </TransitionWrapper>
       <ProjectWrapper />
+      <Contact />
     </motion.main>
   )
 }
-

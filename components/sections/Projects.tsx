@@ -1,26 +1,267 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { getGPUTier } from "detect-gpu";
+
+const dummyProjects = [
+  {
+    title: "Quantum Nexus",
+    category: "Web3 Platform",
+    desc: "A decentralized exchange with real-time analytics and predictive trading algorithms.",
+    image: "/images/projects/project-1.webp",
+  },
+  {
+    title: "Aura Dynamics",
+    category: "Generative AI",
+    desc: "Interactive AI visualization tool for creating immersive ambient environments.",
+    image: "/images/projects/project-2.webp",
+  },
+  {
+    title: "Lumina Frame",
+    category: "E-Commerce",
+    desc: "A high-performance headless Shopify storefront with custom 3D product configurators.",
+    image: "/images/projects/project-3.webp",
+  },
+  {
+    title: "Velocity OS",
+    category: "System Design",
+    desc: "A web-based operating system interface showcasing complex state management.",
+    image: "/images/projects/project-4.webp",
+  },
+  {
+    title: "Chroma Engine",
+    category: "Creative Coding",
+    desc: "Custom WebGL shader engine built for high-end interactive storytelling.",
+    image: "/images/projects/project-5.webp",
+  },
+];
 
 export default function Projects() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLowEnd, setIsLowEnd] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const imagesRef = useRef<HTMLDivElement>(null);
+
+  // Ref to hold the Shery JS setScroll control if available
+  const sheryControl = useRef<((index: number) => void) | null>(null);
+  const isAnimating = useRef(false);
+  const sheryInitialized = useRef(false);
+
+  // NOTE: IntersectionObserver for isProjectSectionInView is handled by ProjectWrapper
+  // via useInView hook. No duplicate observer here to avoid state race conditions.
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const gpuTier = await getGPUTier();
+        if (gpuTier.tier < 2 || gpuTier.isMobile) {
+          setIsLowEnd(true);
+        }
+      } catch (e) {
+        console.warn("Could not detect GPU tier", e);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (sheryInitialized.current) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let Shery: any;
+    const initShery = async () => {
+      if (typeof window === "undefined" || !imagesRef.current) return;
+      if (sheryInitialized.current) return;
+
+      try {
+        // Step 1: DOM Interactive Check (Wait for the document to be fully loaded to prevent WebGL deadlocks)
+        if (document.readyState !== "complete") {
+          await new Promise((resolve) => {
+            window.addEventListener("load", resolve, { once: true });
+          });
+        }
+
+        // Wait for all images to fully load to ensure WebGL textures aren't blank
+        const imgs = Array.from(imagesRef.current.querySelectorAll("img"));
+        await Promise.all(imgs.map(img => {
+          if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+          return new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        }));
+
+        // Dynamically import Shery to avoid SSR issues
+        // @ts-expect-error - SheryJS lacks TypeScript definitions
+        Shery = (await import("sheryjs")).default;
+
+        sheryInitialized.current = true;
+
+        Shery.imageEffect(".shery-projects-images", {
+          style: 5,
+          gooey: true,
+          scrollSnapping: true,
+          scrollSpeed: 6,
+          touchSpeed: 6,
+          damping: 7,
+          config: {
+            a: { value: 2, range: [0, 30] },
+            b: { value: -0.91, range: [-1, 1] },
+            zindex: { value: 0, range: [-9999999, 9999999] },
+            aspect: { value: 1.9056224899598394 },
+            ignoreShapeAspect: { value: true },
+            shapePosition: { value: { x: 0, y: 0 } },
+            shapeScale: { value: { x: 0.5, y: 0.5 } },
+            shapeEdgeSoftness: { value: 0, range: [0, 0.5] },
+            shapeRadius: { value: 0, range: [0, 2] },
+            currentScroll: { value: 0 },
+            scrollLerp: { value: 0.07 },
+            gooey: { value: true },
+            infiniteGooey: { value: true },
+            growSize: { value: 4, range: [1, 15] },
+            durationOut: { value: 1, range: [0.1, 5] },
+            durationIn: { value: 1, range: [0.1, 5] },
+            displaceAmount: { value: 0.5 },
+            masker: { value: false },
+            maskVal: { value: 1, range: [1, 5] },
+            scrollType: { value: 0 },
+            geoVertex: { range: [1, 64], value: 1 },
+            noEffectGooey: { value: true },
+            onMouse: { value: 1 },
+            noise_speed: { value: 0.2, range: [0, 10] },
+            metaball: { value: 0.2, range: [0, 2], _gsap: { id: 3 } },
+            discard_threshold: { value: 0.5, range: [0, 1] },
+            antialias_threshold: { value: 0.002, range: [0, 0.1] },
+            noise_height: { value: 0.5, range: [0, 2] },
+            noise_scale: { value: 10, range: [0, 100] },
+          },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          slideStyle: (setScroll: any) => {
+            sheryControl.current = setScroll;
+          }
+        });
+
+        // Robustly extract the GUI panel out of the SheryJS stacking context
+        // so it sits on top of the <main> layout and remains clickable.
+        // Since images take time to load, we poll until the GUI is created.
+        const guiInterval = setInterval(() => {
+          const gui = document.getElementById('controlKit') || document.querySelector('.controlKit');
+          if (gui) {
+            if (gui.parentElement !== document.body) {
+              document.body.appendChild(gui);
+            }
+            clearInterval(guiInterval);
+          }
+        }, 500);
+
+        // Clear interval after 10s to prevent memory leaks if debug is disabled
+        setTimeout(() => clearInterval(guiInterval), 10000);
+
+      } catch (err) {
+        console.error("SheryJS Init Error:", err);
+      }
+    };
+
+    // Initialize after a short delay to ensure React has painted the DOM images
+    const timer = setTimeout(initShery, 100);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
+
+  const handleNext = () => {
+    if (isAnimating.current) return;
+    isAnimating.current = true;
+
+    // Loop back to 0 if at the last project
+    const nextIndex = currentIndex >= dummyProjects.length - 1 ? 0 : currentIndex + 1;
+
+    // Trigger SheryJS transition smoothly with GSAP
+    if (sheryControl.current) {
+      gsap.to({ val: currentIndex }, {
+        val: nextIndex,
+        duration: 1.2,
+        ease: "power2.inOut",
+        onUpdate: function () {
+          if (sheryControl.current) {
+            sheryControl.current(this.targets()[0].val);
+          }
+        }
+      });
+    }
+
+    // Animate text out and in
+    gsap.to(".project-info", {
+      y: -50,
+      opacity: 0,
+      duration: 0.4,
+      ease: "power2.in",
+      onComplete: () => {
+        setCurrentIndex(nextIndex);
+
+        gsap.fromTo(".project-info",
+          { y: 50, opacity: 0 },
+          {
+            y: 0, opacity: 1, duration: 0.6, ease: "power3.out", onComplete: () => {
+              isAnimating.current = false;
+            }
+          }
+        );
+      }
+    });
+  };
+
   return (
-    <div className="w-full h-full min-h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden disable-custom-cursor">
-      {/* Background premium accents */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_100%)] pointer-events-none"></div>
-      
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        className="z-10 text-center flex flex-col items-center justify-center"
+    <div
+      ref={containerRef}
+      className="w-full h-screen bg-transparent flex flex-col items-center justify-center relative overflow-hidden disable-custom-cursor"
+    >
+      {/* 
+        SheryJS Container 
+        We render all images here. SheryJS will convert them to a WebGL canvas.
+      */}
+      <div
+        ref={imagesRef}
+        className={`shery-projects-images absolute inset-0 w-full h-full z-0 ${isLowEnd ? 'opacity-90' : 'opacity-100'}`}
+        onClick={handleNext}
       >
-        <h2 className="text-5xl md:text-7xl font-bold tracking-tighter text-white mb-6 drop-shadow-lg">
-          Projects
-        </h2>
-        <p className="text-white/40 text-lg md:text-xl font-light tracking-widest uppercase">
-          Coming Soon
-        </p>
-      </motion.div>
+        {dummyProjects.map((project, i) => (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            key={i}
+            src={project.image}
+            alt={project.title}
+            width="1920"
+            height="1080"
+            crossOrigin="anonymous"
+            className="w-full h-full object-cover absolute inset-0 pointer-events-none"
+          />
+        ))}
+      </div>
+
+      {/* Content Overlay */}
+      <div className="absolute inset-0 z-10 pointer-events-none flex flex-col justify-center px-12 md:px-24 lg:px-48 bg-gradient-to-t from-black/80 via-transparent to-black/40">
+        <div ref={textRef} className="project-info max-w-4xl pt-20">
+          <p className="text-white/60 text-sm md:text-lg font-mono mb-4 uppercase tracking-[0.2em]">
+            {String(currentIndex + 1).padStart(2, '0')} — {dummyProjects[currentIndex].category}
+          </p>
+          <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white mb-6 drop-shadow-2xl">
+            {dummyProjects[currentIndex].title}
+          </h2>
+          <p className="text-white/80 text-lg md:text-2xl font-light leading-relaxed max-w-2xl text-balance drop-shadow-md">
+            {dummyProjects[currentIndex].desc}
+          </p>
+
+          <div className="mt-12 flex items-center gap-4">
+            <div className="w-12 h-[1px] bg-white/40"></div>
+            <p className="text-white/40 text-sm uppercase tracking-widest">
+              Tap anywhere to view next
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
