@@ -132,6 +132,14 @@ export default function CustomCursor() {
       const target = e.target as HTMLElement | null
       if (!target) return
 
+      // 0. Disable custom cursor entirely
+      if (target.closest('.disable-custom-cursor')) {
+        state.mode = 'hidden'
+        setCursorMode('hidden')
+        state.magneticCenter = null
+        return
+      }
+
       // 1. Explicit data-cursor-text
       const textElem = target.closest('[data-cursor-text]') as HTMLElement | null
       if (textElem) {
@@ -216,6 +224,8 @@ export default function CustomCursor() {
 
     // Mouse Down / Up
     const handleMouseDown = (e: MouseEvent) => {
+      if (stateRef.current.mode === 'hidden') return
+
       setIsClicking(true)
 
       // Spawn a dynamic shockwave ripple
@@ -302,7 +312,9 @@ export default function CustomCursor() {
       state.auraY += (state.targetY - state.auraY) * 0.09
 
       // Spawn stardust particles
-      spawnParticles(state.targetX, state.targetY, state.speed)
+      if (state.mode !== 'hidden') {
+        spawnParticles(state.targetX, state.targetY, state.speed)
+      }
 
       // Apply transforms to DOM layers directly
       if (innerRef.current) {
@@ -373,13 +385,18 @@ export default function CustomCursor() {
   return (
     <>
       {/* 1. Fluid Splash Effect (Preserved completely) */}
-      <SplashCursor COLOR="#2a9d8f" RAINBOW_MODE={false} />
+      <div 
+        className="pointer-events-none fixed inset-0 z-[9994] transition-opacity duration-300"
+        style={{ opacity: cursorMode === 'hidden' ? 0 : 1 }}
+      >
+        <SplashCursor COLOR="#2a9d8f" RAINBOW_MODE={false} />
+      </div>
 
       {/* 2. Cosmic Stardust Particle Canvas */}
       <canvas
         ref={canvasRef}
         className="pointer-events-none fixed inset-0 z-[9995] transition-opacity duration-300"
-        style={{ opacity: isVisible ? 1 : 0 }}
+        style={{ opacity: isVisible && cursorMode !== 'hidden' ? 1 : 0 }}
       />
 
       {/* 3. Ambient Luminous Aura (Soft glowing atmospheric trail) */}

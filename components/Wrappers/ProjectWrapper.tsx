@@ -1,23 +1,16 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect } from "react";
 import VariableProximity from "@/components/ui/Animations/VariableProximity/VariableProximity";
 import { useLoadingStore } from "@/store/useLoadingStore";
+import Projects from "@/components/sections/Projects";
 
-export default function ProjectWrapper() {
-  const containerRef = useRef<HTMLElement>(null);
-  const setComponentMounted = useLoadingStore((state) => state.setComponentMounted);
-
-  useEffect(() => {
-    setComponentMounted("projectWrapper");
-  }, [setComponentMounted]);
-
+// We extract the premium visual content into its own component 
+// so we can render it in both the top and bottom halves for the split effect.
+function ProjectWrapperContent({ containerRef }: { containerRef: React.RefObject<HTMLElement | null> }) {
   return (
-    <section 
-      ref={containerRef}
-      className="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-black"
-    >
+    <div className="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-black">
       {/* Animated Premium Gradient Background Orbs */}
       <motion.div
         animate={{
@@ -79,6 +72,74 @@ export default function ProjectWrapper() {
             falloff="gaussian"
           />
         </motion.h1>
+      </div>
+    </div>
+  );
+}
+
+export default function ProjectWrapper() {
+  const containerRef = useRef<HTMLElement>(null);
+  const setComponentMounted = useLoadingStore((state) => state.setComponentMounted);
+
+  useEffect(() => {
+    setComponentMounted("projectWrapper");
+  }, [setComponentMounted]);
+
+  // Track the scroll progress over the 250vh container
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
+  // Delay the animation until 40% scroll progress to let the user interact with the text.
+  // Top half slides UP by 100% of its height (50vh) -> out of view
+  const topY = useTransform(scrollYProgress, [0.4, 1], ["0%", "-100%"]);
+  
+  // Bottom half slides DOWN by 100% of its height (50vh) -> out of view
+  const bottomY = useTransform(scrollYProgress, [0.4, 1], ["0%", "100%"]);
+
+  return (
+    <section 
+      ref={containerRef}
+      className="relative h-[250vh] w-full bg-black disable-custom-cursor"
+    >
+      {/* Sticky container that holds the animation while scrolling */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
+        
+        {/* REVEALED CONTENT (PROJECTS) */}
+        {/* It stays in the background and is revealed as the halves split */}
+        <div className="absolute inset-0 z-0">
+          <Projects />
+        </div>
+
+        {/* TOP HALF SPLIT */}
+        <motion.div 
+          className="absolute top-0 left-0 w-full h-[50vh] overflow-hidden z-10"
+          style={{ y: topY }}
+        >
+          {/* We render the full 100vh content, but only the top 50vh is visible due to overflow-hidden */}
+          <div className="absolute top-0 left-0 w-full h-[100vh]">
+            <ProjectWrapperContent containerRef={containerRef} />
+          </div>
+          
+          {/* Subtle line at the split edge for premium feel */}
+          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-white/20 shadow-[0_0_20px_rgba(255,255,255,0.4)] z-20" />
+        </motion.div>
+
+        {/* BOTTOM HALF SPLIT */}
+        <motion.div 
+          className="absolute bottom-0 left-0 w-full h-[50vh] overflow-hidden z-10"
+          style={{ y: bottomY }}
+        >
+          {/* We render the full 100vh content, aligned to the bottom, so only the bottom 50vh is visible */}
+          <div className="absolute bottom-0 left-0 w-full h-[100vh]">
+            <ProjectWrapperContent containerRef={containerRef} />
+          </div>
+
+          {/* Subtle line at the split edge for premium feel */}
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-white/20 shadow-[0_0_20px_rgba(255,255,255,0.4)] z-20" />
+        </motion.div>
+        
       </div>
     </section>
   );

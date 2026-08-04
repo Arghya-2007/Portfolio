@@ -65,6 +65,11 @@
     cursor: none !important;
   }
 
+  body.custom-cursor-active .disable-custom-cursor,
+  body.custom-cursor-active .disable-custom-cursor * {
+    cursor: auto !important;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
