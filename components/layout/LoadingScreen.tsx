@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLoadingStore, type LoadingStatus } from '@/store/useLoadingStore'
 import { useAnimationStore } from '@/store/useAnimationStore'
+import { ScrollTrigger } from '@/lib/gsap/gsap.config'
 
 // Key frames to preload during initial splash (first 15 frames + key profile assets)
 const CRITICAL_FRAMES = Array.from(
@@ -20,10 +21,10 @@ const STATUS_STAGES: { threshold: number; status: LoadingStatus }[] = [
 ]
 
 export default function LoadingScreen() {
-  const { isLoading, progress, status, setProgress, setStatus, setComplete, mountedComponents } = useLoadingStore()
+  const { isLoading, progress, status, mountedComponents } = useLoadingStore()
   const gpuTier = useAnimationStore((state) => state.gpuTier)
 
-  const [assetsReady, setAssetsReady] = useState(false)
+  const assetsReadyRef = useRef(false)
   const [isExiting, setIsExiting] = useState(false)
   const progressRef = useRef(0)
   const animFrameRef = useRef<number | null>(null)
@@ -53,7 +54,7 @@ export default function LoadingScreen() {
         await Promise.all(imagePromises)
 
         if (!isCancelled) {
-          setAssetsReady(true)
+          assetsReadyRef.current = true
         }
 
         // 3. Queue remainder in background during idle time
@@ -67,7 +68,7 @@ export default function LoadingScreen() {
         }
       } catch {
         if (!isCancelled) {
-          setAssetsReady(true)
+          assetsReadyRef.current = true
         }
       }
     }
@@ -83,6 +84,12 @@ export default function LoadingScreen() {
   useEffect(() => {
     if (!isLoading) return
 
+    // Disable browser scroll restoration to prevent GSAP from miscalculating pin-spacers on refresh
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual'
+    }
+    ScrollTrigger.clearScrollMemory('manual')
+
     // Lock page scroll
     const originalOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -91,6 +98,8 @@ export default function LoadingScreen() {
     const MIN_DURATION = 2200 // 2.2 seconds minimum aesthetic presentation
 
     const updateProgress = (now: number) => {
+      const state = useLoadingStore.getState()
+      
       const elapsed = now - startTime
       const timeRatio = Math.min(1, elapsed / MIN_DURATION)
 
@@ -98,36 +107,40 @@ export default function LoadingScreen() {
       const easeProgress = 1 - Math.pow(1 - timeRatio, 3)
 
       const allComponentsMounted = 
-        mountedComponents['hero'] && 
-        mountedComponents['techStack'] && 
-        mountedComponents['roadMap'] && 
-        mountedComponents['projectWrapper']
+        state.mountedComponents['hero'] && 
+        state.mountedComponents['techStack'] && 
+        state.mountedComponents['roadMap'] && 
+        state.mountedComponents['projectWrapper']
 
       // Target progress is capped at 88% until actual assets are confirmed ready and dynamic components are mounted
-      const maxAllowed = (assetsReady && allComponentsMounted) ? 100 : 88
+      const maxAllowed = (assetsReadyRef.current && allComponentsMounted) ? 100 : 88
       const calculated = Math.min(maxAllowed, Math.round(easeProgress * 100))
 
       if (calculated > progressRef.current) {
         progressRef.current = calculated
-        setProgress(calculated)
+        state.setProgress(calculated)
 
         // Update status text
         const currentStage = [...STATUS_STAGES]
           .reverse()
           .find((stage) => calculated >= stage.threshold)
-        if (currentStage && currentStage.status !== status) {
-          setStatus(currentStage.status)
+        if (currentStage && currentStage.status !== state.status) {
+          state.setStatus(currentStage.status)
         }
       }
 
-      if (progressRef.current >= 100 && assetsReady) {
+      if (progressRef.current >= 100 && assetsReadyRef.current) {
         // Completed loading — short hold before exit
         setTimeout(() => {
           setIsExiting(true)
           // Complete after exit curtain transitions
           setTimeout(() => {
-            setComplete()
+            state.setComplete()
             document.body.style.overflow = originalOverflow
+            // Wait for page scale animation to finish (900ms), then force a global refresh
+            setTimeout(() => {
+              ScrollTrigger.refresh()
+            }, 950)
           }, 850)
         }, 300)
       } else {
@@ -143,7 +156,7 @@ export default function LoadingScreen() {
       }
       document.body.style.overflow = originalOverflow
     }
-  }, [assetsReady, isLoading, setProgress, setStatus, setComplete, mountedComponents, status])
+  }, [isLoading])
 
   if (!isLoading) return null
 

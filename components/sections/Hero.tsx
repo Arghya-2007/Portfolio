@@ -549,7 +549,6 @@ function Hero() {
     if (!sectionRef.current) return
 
     const ctx = gsap.context(() => {
-      gsap.delayedCall(0.15, () => {
         if (!sectionRef.current) return
 
         // ── Compute billboard → hero name transform values ──────────
@@ -819,7 +818,6 @@ function Hero() {
           onEnter: () => useAnimationStore.getState().setActiveSection('about'),
           onLeaveBack: () => useAnimationStore.getState().setActiveSection('hero'),
         })
-      })
     }, sectionRef)
 
     return () => ctx.revert()
