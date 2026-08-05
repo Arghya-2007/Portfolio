@@ -118,7 +118,7 @@ export default function ProjectWrapper() {
 
         {/* REVEALED CONTENT (PROJECTS) */}
         {/* It stays in the background and is revealed as the halves split */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0" style={{ pointerEvents: 'auto' }}>
           <Projects />
         </div>
 

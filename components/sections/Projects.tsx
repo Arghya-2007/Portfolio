@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
+import { gsap, ScrollTrigger } from "@/lib/gsap/gsap.config";
 import { getGPUTier } from "detect-gpu";
+
 
 const dummyProjects = [
   {
@@ -70,6 +71,9 @@ export default function Projects() {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let Shery: any;
+    let guiInterval: ReturnType<typeof setInterval> | null = null;
+    let guiTimeout: ReturnType<typeof setTimeout> | null = null;
+
     const initShery = async () => {
       if (typeof window === "undefined" || !imagesRef.current) return;
       if (sheryInitialized.current) return;
@@ -92,6 +96,10 @@ export default function Projects() {
           });
         }));
 
+        // Expose GSAP to the window object globally
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).gsap = gsap;
+
         // Dynamically import Shery to avoid SSR issues
         // @ts-expect-error - SheryJS lacks TypeScript definitions
         Shery = (await import("sheryjs")).default;
@@ -105,10 +113,10 @@ export default function Projects() {
           scrollSpeed: 6,
           touchSpeed: 6,
           damping: 7,
-          config: {
+           config: {
             a: { value: 2, range: [0, 30] },
             b: { value: -0.91, range: [-1, 1] },
-            zindex: { value: 0, range: [-9999999, 9999999] },
+            zindex: { value: 1, range: [-9999999, 9999999] },
             aspect: { value: 1.9056224899598394 },
             ignoreShapeAspect: { value: true },
             shapePosition: { value: { x: 0, y: 0 } },
@@ -127,7 +135,7 @@ export default function Projects() {
             maskVal: { value: 1, range: [1, 5] },
             scrollType: { value: 0 },
             geoVertex: { range: [1, 64], value: 1 },
-            noEffectGooey: { value: true },
+            noEffectGooey: { value: false },
             onMouse: { value: 1 },
             noise_speed: { value: 0.2, range: [0, 10] },
             metaball: { value: 0.2, range: [0, 2], _gsap: { id: 3 } },
@@ -135,28 +143,24 @@ export default function Projects() {
             antialias_threshold: { value: 0.002, range: [0, 0.1] },
             noise_height: { value: 0.5, range: [0, 2] },
             noise_scale: { value: 10, range: [0, 100] },
-          },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          slideStyle: (setScroll: any) => {
-            sheryControl.current = setScroll;
           }
         });
 
         // Robustly extract the GUI panel out of the SheryJS stacking context
         // so it sits on top of the <main> layout and remains clickable.
         // Since images take time to load, we poll until the GUI is created.
-        const guiInterval = setInterval(() => {
+        guiInterval = setInterval(() => {
           const gui = document.getElementById('controlKit') || document.querySelector('.controlKit');
           if (gui) {
             if (gui.parentElement !== document.body) {
               document.body.appendChild(gui);
             }
-            clearInterval(guiInterval);
+            if (guiInterval) clearInterval(guiInterval);
           }
         }, 500);
 
         // Clear interval after 10s to prevent memory leaks if debug is disabled
-        setTimeout(() => clearInterval(guiInterval), 10000);
+        guiTimeout = setTimeout(() => { if (guiInterval) clearInterval(guiInterval); }, 10000);
 
       } catch (err) {
         console.error("SheryJS Init Error:", err);
@@ -168,6 +172,32 @@ export default function Projects() {
 
     return () => {
       clearTimeout(timer);
+      if (guiInterval) clearInterval(guiInterval);
+      if (guiTimeout) clearTimeout(guiTimeout);
+
+      // Destroy SheryJS WebGL canvases to prevent duplicates on HMR / StrictMode remount
+      if (imagesRef.current) {
+        const canvases = imagesRef.current.querySelectorAll("canvas");
+        canvases.forEach((canvas) => {
+          // Attempt to lose the WebGL context to free GPU memory
+          const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
+          if (gl) {
+            const ext = gl.getExtension("WEBGL_lose_context");
+            if (ext) ext.loseContext();
+          }
+          canvas.remove();
+        });
+      }
+
+      // Kill any ScrollTrigger instances SheryJS may have created inside our container
+      ScrollTrigger.getAll()
+        .filter((st) => {
+          const triggerEl = st.trigger as HTMLElement | undefined;
+          return triggerEl?.closest?.(".shery-projects-images");
+        })
+        .forEach((st) => st.kill());
+
+      sheryInitialized.current = false;
     };
   }, []);
 
@@ -178,19 +208,8 @@ export default function Projects() {
     // Loop back to 0 if at the last project
     const nextIndex = currentIndex >= dummyProjects.length - 1 ? 0 : currentIndex + 1;
 
-    // Trigger SheryJS transition smoothly with GSAP
-    if (sheryControl.current) {
-      gsap.to({ val: currentIndex }, {
-        val: nextIndex,
-        duration: 1.2,
-        ease: "power2.inOut",
-        onUpdate: function () {
-          if (sheryControl.current) {
-            sheryControl.current(this.targets()[0].val);
-          }
-        }
-      });
-    }
+    // SheryJS handles the WebGL image transition internally via its own mousedown listener now.
+    // We only need to animate the text out and in.
 
     // Animate text out and in
     gsap.to(".project-info", {
@@ -224,7 +243,8 @@ export default function Projects() {
       */}
       <div
         ref={imagesRef}
-        className={`shery-projects-images absolute inset-0 w-full h-full z-0 ${isLowEnd ? 'opacity-90' : 'opacity-100'}`}
+        className={`shery-projects-images w-full h-full ${isLowEnd ? 'opacity-90' : 'opacity-100'}`}
+        style={{ position: 'relative', width: '100%', height: '100%' }}
         onClick={handleNext}
       >
         {dummyProjects.map((project, i) => (
@@ -236,7 +256,7 @@ export default function Projects() {
             width="1920"
             height="1080"
             crossOrigin="anonymous"
-            className="w-full h-full object-cover absolute inset-0 pointer-events-none"
+            className="w-full h-full object-cover absolute inset-0"
           />
         ))}
       </div>

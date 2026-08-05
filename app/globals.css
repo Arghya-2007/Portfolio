@@ -68,7 +68,7 @@
 
   body.custom-cursor-active .disable-custom-cursor,
   body.custom-cursor-active .disable-custom-cursor * {
-    cursor: none !important;
+    cursor: auto !important;
   }
 
   body.custom-cursor-active #sheryjs,
@@ -87,6 +87,7 @@
     pointer-events: auto !important;
     z-index: 10 !important;
     position: relative !important;
+    cursor: none !important;
   }
 
   /* Custom scrollbar */

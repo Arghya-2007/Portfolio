@@ -1,0 +1,6 @@
+rules:
+  - name: "prefer-graph-read"
+    trigger: "always"
+    instruction: |
+      Before reading any source code files, you MUST query the 'graphify' tool to understand the component hierarchy and imports.
+      Do not use 'grep' or 'find_files' for broad architectural search.
