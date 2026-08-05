@@ -8,6 +8,7 @@ import { ScrollTrigger } from '@/lib/gsap/gsap.config'
 import Aurora from '../ui/Backgrounds/Aurora'
 import ImageTrail from '../ui/Animations/HoverEffects/ImageTrail'
 import TextMarquee from '../ui/Animations/Marquee/TextMarquee'
+import BorderGlow from '../ui/Animations/HoverEffects/BorderGlow'
 import { CheckCircle2, RefreshCw, Target, Flag, Sparkles } from 'lucide-react'
 import { useLoadingStore } from '@/store/useLoadingStore'
 
@@ -20,6 +21,8 @@ const roadmapData = [
     color: "from-emerald-500/20 to-green-900/20",
     border: "border-emerald-500/30",
     iconColor: "text-emerald-400",
+    glowColor: "150 100 50",
+    glowColors: ['#34d399', '#059669', '#10b981'],
     image: "/images/roadmap/img-2.webp",
     items: [
       "Mastering Linux internals, Shell scripting, and advanced Git.",
@@ -35,6 +38,8 @@ const roadmapData = [
     color: "from-blue-500/20 to-cyan-900/20",
     border: "border-blue-500/30",
     iconColor: "text-blue-400",
+    glowColor: "210 100 50",
+    glowColors: ['#60a5fa', '#2563eb', '#3b82f6'],
     image: "/images/roadmap/img-7.webp",
     items: [
       "AWS Core Services: EC2, S3, VPC, IAM, and Load Balancers.",
@@ -50,6 +55,8 @@ const roadmapData = [
     color: "from-purple-500/20 to-fuchsia-900/20",
     border: "border-purple-500/30",
     iconColor: "text-purple-400",
+    glowColor: "270 100 50",
+    glowColors: ['#c084fc', '#9333ea', '#a855f7'],
     image: "/images/roadmap/img-4.webp",
     items: [
       "System metrics & logging with Prometheus, Grafana, and ELK.",
@@ -65,6 +72,8 @@ const roadmapData = [
     color: "from-orange-500/20 to-red-900/20",
     border: "border-orange-500/30",
     iconColor: "text-orange-400",
+    glowColor: "30 100 50",
+    glowColors: ['#fb923c', '#ea580c', '#f97316'],
     image: "/images/roadmap/img-3.webp",
     items: [
       "Securing Platform Engineering and Cloud/DevOps roles.",
@@ -254,9 +263,16 @@ export default function RoadMap() {
             {roadmapData.map((item, index) => {
               const Icon = item.icon
               return (
-                <div 
+                <BorderGlow
                   key={index} 
-                  className={`relative flex flex-col md:flex-row gap-6 md:gap-8 p-6 md:p-12 w-[85vw] md:w-[85vw] lg:w-[60vw] max-w-4xl min-h-[400px] md:h-[60vh] shrink-0 snap-center rounded-[2rem] bg-black/60 backdrop-blur-2xl border ${item.border} overflow-hidden shadow-2xl transform-gpu`}
+                  className={`w-[85vw] md:w-[85vw] lg:w-[60vw] max-w-4xl min-h-[400px] md:h-[60vh] shrink-0 snap-center rounded-[2rem] bg-black/60 backdrop-blur-2xl border ${item.border} shadow-2xl transform-gpu`}
+                  contentClassName="flex flex-col md:flex-row gap-6 md:gap-8 p-6 md:p-12 overflow-hidden rounded-[inherit]"
+                  borderRadius={32}
+                  backgroundColor="rgba(0, 0, 0, 0.6)"
+                  edgeSensitivity={50}
+                  glowColor={item.glowColor}
+                  colors={item.glowColors}
+                  fillOpacity={0}
                 >
                   {/* Background Gradient */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-50 z-0 pointer-events-none`} />
@@ -298,7 +314,7 @@ export default function RoadMap() {
                       ))}
                     </ul>
                   </div>
-                </div>
+                </BorderGlow>
               )
             })}
           </div>

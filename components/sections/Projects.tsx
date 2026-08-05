@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap/gsap.config";
 import { getGPUTier } from "detect-gpu";
 
@@ -38,15 +38,39 @@ const dummyProjects = [
   },
 ];
 
-export default function Projects() {
+const SheryContainer = React.memo(
+  React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>((props, ref) => {
+    return (
+      <div
+        ref={ref}
+        className="shery-projects-images w-full h-full opacity-100 cursor-pointer"
+        style={{ position: 'relative', width: '100%', height: '100%' }}
+      >
+        {dummyProjects.map((project, i) => (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            key={i}
+            src={project.image}
+            alt={project.title}
+            width="1920"
+            height="1080"
+            crossOrigin="anonymous"
+            decoding="async"
+            className="w-full h-full object-cover absolute inset-0"
+          />
+        ))}
+      </div>
+    );
+  })
+);
+
+const Projects = React.memo(function Projects() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLowEnd, setIsLowEnd] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLDivElement>(null);
 
-  // Ref to hold the Shery JS setScroll control if available
-  const sheryControl = useRef<((index: number) => void) | null>(null);
+
   const isAnimating = useRef(false);
   const sheryInitialized = useRef(false);
 
@@ -58,7 +82,10 @@ export default function Projects() {
       try {
         const gpuTier = await getGPUTier();
         if (gpuTier.tier < 2 || gpuTier.isMobile) {
-          setIsLowEnd(true);
+          // Mutate DOM safely without state to prevent trashing SheryJS
+          if (imagesRef.current) {
+            imagesRef.current.classList.add('opacity-90');
+          }
         }
       } catch (e) {
         console.warn("Could not detect GPU tier", e);
@@ -67,6 +94,7 @@ export default function Projects() {
   }, []);
 
   useEffect(() => {
+    const currentImagesRef = imagesRef.current;
     if (sheryInitialized.current) return;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -116,7 +144,7 @@ export default function Projects() {
            config: {
             a: { value: 2, range: [0, 30] },
             b: { value: -0.91, range: [-1, 1] },
-            zindex: { value: 1, range: [-9999999, 9999999] },
+            zindex: { value: 0, range: [-9999999, 9999999] },
             aspect: { value: 1.9056224899598394 },
             ignoreShapeAspect: { value: true },
             shapePosition: { value: { x: 0, y: 0 } },
@@ -176,8 +204,8 @@ export default function Projects() {
       if (guiTimeout) clearTimeout(guiTimeout);
 
       // Destroy SheryJS WebGL canvases to prevent duplicates on HMR / StrictMode remount
-      if (imagesRef.current) {
-        const canvases = imagesRef.current.querySelectorAll("canvas");
+      if (currentImagesRef) {
+        const canvases = currentImagesRef.querySelectorAll("canvas");
         canvases.forEach((canvas) => {
           // Attempt to lose the WebGL context to free GPU memory
           const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
@@ -201,7 +229,24 @@ export default function Projects() {
     };
   }, []);
 
-  const handleNext = () => {
+  const handleNext = useCallback((e?: React.SyntheticEvent | Event) => {
+    // If it's a touch event on mobile, explicitly dispatch a click to the canvas 
+    // to guarantee SheryJS catches it, as native mobile touches can be swallowed.
+    if (e && e.type === 'touchstart') {
+      const canvas = imagesRef.current?.querySelector('canvas');
+      if (canvas) {
+        const touch = (e as unknown as React.TouchEvent).touches?.[0];
+        const clickEvent = new MouseEvent('click', {
+          view: window,
+          bubbles: true,
+          cancelable: true,
+          clientX: touch?.clientX || 0,
+          clientY: touch?.clientY || 0
+        });
+        canvas.dispatchEvent(clickEvent);
+      }
+    }
+
     if (isAnimating.current) return;
     isAnimating.current = true;
 
@@ -230,40 +275,25 @@ export default function Projects() {
         );
       }
     });
-  };
+  }, [currentIndex]);
 
   return (
     <div
       ref={containerRef}
-      className="w-full h-screen bg-transparent flex flex-col items-center justify-center relative overflow-hidden disable-custom-cursor"
+      className="w-full h-[100dvh] bg-transparent flex flex-col items-center justify-center relative overflow-hidden disable-custom-cursor"
+      onClickCapture={handleNext}
+      onTouchStartCapture={handleNext}
     >
       {/* 
         SheryJS Container 
         We render all images here. SheryJS will convert them to a WebGL canvas.
+        Wrapped in a memoized component so React state updates don't destroy the WebGL canvas.
       */}
-      <div
-        ref={imagesRef}
-        className={`shery-projects-images w-full h-full ${isLowEnd ? 'opacity-90' : 'opacity-100'}`}
-        style={{ position: 'relative', width: '100%', height: '100%' }}
-        onClick={handleNext}
-      >
-        {dummyProjects.map((project, i) => (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            key={i}
-            src={project.image}
-            alt={project.title}
-            width="1920"
-            height="1080"
-            crossOrigin="anonymous"
-            className="w-full h-full object-cover absolute inset-0"
-          />
-        ))}
-      </div>
+      <SheryContainer ref={imagesRef} />
 
       {/* Content Overlay */}
       <div className="absolute inset-0 z-10 pointer-events-none flex flex-col justify-center px-12 md:px-24 lg:px-48 bg-gradient-to-t from-black/80 via-transparent to-black/40">
-        <div ref={textRef} className="project-info max-w-4xl pt-20">
+        <div ref={textRef} className="project-info max-w-4xl pt-20 transform-gpu will-change-transform">
           <p className="text-white/60 text-sm md:text-lg font-mono mb-4 uppercase tracking-[0.2em]">
             {String(currentIndex + 1).padStart(2, '0')} — {dummyProjects[currentIndex].category}
           </p>
@@ -284,4 +314,6 @@ export default function Projects() {
       </div>
     </div>
   );
-}
+});
+
+export default Projects;

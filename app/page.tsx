@@ -13,6 +13,7 @@ const TechStack = dynamic(() => import('@/components/sections/TechStack'), { ssr
 const RoadMap = dynamic(() => import('@/components/sections/RoadMap'), { ssr: false })
 const ProjectWrapper = dynamic(() => import('@/components/Wrappers/ProjectWrapper'), { ssr: false })
 import TransitionWrapper from '@/components/Wrappers/TransitionWrapper'
+import ContactRevealWrapper from '@/components/Wrappers/ContactRevealWrapper'
 
 export default function HomePage() {
   useActiveSection()
@@ -32,7 +33,9 @@ export default function HomePage() {
         <RoadMap />
       </TransitionWrapper>
       <ProjectWrapper />
-      <Contact />
+      <ContactRevealWrapper>
+        <Contact />
+      </ContactRevealWrapper>
     </motion.main>
   )
 }
