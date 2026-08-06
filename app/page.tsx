@@ -1,7 +1,9 @@
 'use client'
 
+import { useRef } from 'react'
 import dynamic from 'next/dynamic'
-import { motion } from 'framer-motion'
+import { gsap } from 'gsap'
+import { useGSAP } from '@gsap/react'
 
 import { useActiveSection } from '@/hooks/useActiveSection'
 import { useLoadingStore } from '@/store/useLoadingStore'
@@ -18,14 +20,30 @@ import ContactRevealWrapper from '@/components/Wrappers/ContactRevealWrapper'
 export default function HomePage() {
   useActiveSection()
   const isComplete = useLoadingStore((state) => state.isComplete)
+  const mainRef = useRef<HTMLElement>(null)
+
+  useGSAP(() => {
+    if (!mainRef.current) return
+    
+    if (isComplete) {
+      gsap.to(mainRef.current, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.9,
+        ease: 'power3.out',
+        clearProps: 'transform'
+      })
+    } else {
+      gsap.set(mainRef.current, { opacity: 0.8, scale: 0.99 })
+    }
+  }, [isComplete])
 
   return (
-    <motion.main
+    <main
       id="main-content"
-      initial={{ opacity: 0.8, scale: 0.99 }}
-      animate={isComplete ? { opacity: 1, scale: 1, transitionEnd: { transform: 'none' } } : { opacity: 0.8, scale: 0.99 }}
-      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      ref={mainRef}
       className="relative z-10 min-h-screen origin-center"
+      style={{ opacity: 0.8, transform: 'scale(0.99)' }}
     >
       <Hero />
       <TransitionWrapper>
@@ -36,6 +54,6 @@ export default function HomePage() {
       <ContactRevealWrapper>
         <Contact />
       </ContactRevealWrapper>
-    </motion.main>
+    </main>
   )
 }

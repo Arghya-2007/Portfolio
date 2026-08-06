@@ -1,26 +1,16 @@
 'use client'
 
-import { forwardRef } from 'react'
-import { motion } from 'framer-motion'
+import { forwardRef, useRef } from 'react'
+import { gsap } from 'gsap'
+import { useGSAP } from '@gsap/react'
 
 import { useMotionConfig } from '@/hooks/useMotionConfig'
 import { profile } from '@/lib/content'
 
-// ─── Animation Variants ──────────────────────────────────────────────────────
-
-const badgeVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { delay: 1.8, duration: 0.5, ease: 'easeOut' as const },
-  },
-}
-
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface Props {
-  /** When true, skip internal Framer animation — parent GSAP timeline controls the reveal */
+  /** When true, skip internal animation — parent GSAP timeline controls the reveal */
   disableAnimation?: boolean
 }
 
@@ -29,6 +19,32 @@ interface Props {
 const AvailabilityBadge = forwardRef<HTMLDivElement, Props>(
   function AvailabilityBadge({ disableAnimation = false }, ref) {
     const { animationsEnabled } = useMotionConfig()
+    const containerRef = useRef<HTMLDivElement>(null)
+
+    const setRefs = (el: HTMLDivElement | null) => {
+      containerRef.current = el
+      if (typeof ref === 'function') {
+        ref(el)
+      } else if (ref) {
+        ref.current = el
+      }
+    }
+
+    useGSAP(() => {
+      if (!animationsEnabled || disableAnimation || !containerRef.current) return
+      
+      gsap.fromTo(
+        containerRef.current,
+        { opacity: 0, y: 10 },
+        {
+          opacity: 1,
+          y: 0,
+          delay: 1.8,
+          duration: 0.5,
+          ease: 'power2.out',
+        }
+      )
+    }, { scope: containerRef, dependencies: [animationsEnabled, disableAnimation] })
 
     // Don't render if not available for work
     if (!profile.availability) return null
@@ -59,15 +75,12 @@ const AvailabilityBadge = forwardRef<HTMLDivElement, Props>(
     }
 
     return (
-      <motion.div
-        ref={ref}
-        className="glass-subtle px-4 py-2 rounded-pill w-fit flex items-center gap-2.5"
-        variants={badgeVariants}
-        initial="hidden"
-        animate="visible"
+      <div
+        ref={setRefs}
+        className="glass-subtle px-4 py-2 rounded-pill w-fit flex items-center gap-2.5 opacity-0"
       >
         {content}
-      </motion.div>
+      </div>
     )
   }
 )

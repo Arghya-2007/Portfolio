@@ -1,7 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
 import { Mail } from "lucide-react";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "@/lib/gsap/gsap.config";
 
 type SVGProps = React.SVGProps<SVGSVGElement>;
 
@@ -73,44 +75,52 @@ const socials = [
 ];
 
 export default function SocialIcons() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    gsap.fromTo(".social-icon",
+      { opacity: 0, scale: 0.5, y: 20 },
+      { 
+        opacity: 1, 
+        scale: 1, 
+        y: 0, 
+        duration: 0.8, 
+        stagger: 0.1, 
+        ease: "back.out(1.7)",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 95%",
+        }
+      }
+    );
+  }, { scope: containerRef });
+
   return (
-    <div className="flex flex-wrap items-center justify-center gap-6 mt-12 w-full">
-      {socials.map((social, index) => {
+    <div ref={containerRef} className="flex flex-wrap items-center justify-center gap-6 mt-12 w-full">
+      {socials.map((social) => {
         const Icon = social.icon;
         return (
-          <motion.a
+          <a
             key={social.name}
             href={social.href}
             target="_blank"
             rel="noopener noreferrer"
-            initial={{ opacity: 0, scale: 0.5, y: 20 }}
-            whileInView={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{
-              duration: 0.5,
-              delay: index * 0.1,
-              type: "spring",
-              stiffness: 260,
-              damping: 20
-            }}
-            viewport={{ once: true }}
-            whileHover={{ y: -8, scale: 1.15 }}
-            whileTap={{ scale: 0.95, y: 0 }}
-            className={`group relative flex items-center justify-center w-16 h-16 rounded-full bg-white/5 border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 ${social.border}`}
+            className={`social-icon opacity-0 translate-y-[20px] scale-50 group relative flex items-center justify-center w-16 h-16 rounded-full bg-white/5 border border-white/10 backdrop-blur-md transition duration-300 hover:bg-white/10 hover:-translate-y-2 hover:scale-[1.15] active:scale-95 active:translate-y-0 ${social.border}`}
           >
             {/* Background Glow */}
-            <div className={`absolute inset-0 rounded-full ${social.glow} blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+            <div className={`absolute inset-0 rounded-full ${social.glow} blur-xl opacity-0 group-hover:opacity-100 transition duration-500`} />
             
             {/* Inner Ring */}
-            <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-300 scale-100 group-hover:scale-90" />
+            <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition duration-300 scale-100 group-hover:scale-90" />
 
             {/* Icon */}
-            <Icon className={`w-6 h-6 text-white/60 ${social.text} relative z-10 transition-all duration-300 group-hover:scale-110`} />
+            <Icon className={`w-6 h-6 text-white/60 ${social.text} relative z-10 transition duration-300 group-hover:scale-110`} />
             
             {/* Premium Tooltip */}
-            <span className="absolute -bottom-14 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 ease-out text-sm font-medium tracking-wide text-white bg-white/10 backdrop-blur-xl px-4 py-2 rounded-xl border border-white/20 pointer-events-none whitespace-nowrap shadow-2xl z-20">
+            <span className="absolute -bottom-14 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition duration-300 ease-out text-sm font-medium tracking-wide text-white bg-white/10 backdrop-blur-xl px-4 py-2 rounded-xl border border-white/20 pointer-events-none whitespace-nowrap shadow-2xl z-20">
               {social.name}
             </span>
-          </motion.a>
+          </a>
         );
       })}
     </div>

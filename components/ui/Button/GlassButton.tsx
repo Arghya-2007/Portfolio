@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+
 
 import { useMotionConfig } from '@/hooks/useMotionConfig'
 import { cn } from '@/lib/utils'
@@ -43,18 +43,10 @@ const variantStyles = {
 } as const
 
 const hoverStyles = {
-  primary: 'hover:shadow-[0_6px_30px_rgba(231,111,81,0.40)]',
-  secondary: 'hover:border-[rgba(42,157,143,1.0)] hover:bg-[rgba(42,157,143,0.08)]',
-  ghost: 'hover:border-[rgba(42,157,143,0.5)]',
+  primary: 'hover:shadow-[0_6px_30px_rgba(231,111,81,0.40)] hover:scale-[1.04] hover:-translate-y-0.5 active:scale-95 transition-all duration-200 ease-out',
+  secondary: 'hover:border-[rgba(42,157,143,1.0)] hover:bg-[rgba(42,157,143,0.08)] hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200 ease-out',
+  ghost: 'hover:border-[rgba(42,157,143,0.5)] hover:scale-[1.08] active:scale-95 transition-all duration-200 ease-out',
 } as const
-
-// ─── Framer Motion Variants ──────────────────────────────────────────────────
-
-const primarySecondaryHover = { scale: 1.04, y: -2 }
-const primarySecondaryTap = { scale: 0.97 }
-const ghostHover = { scale: 1.08 }
-const ghostTap = { scale: 0.94 }
-const transitionConfig = { duration: 0.2, ease: 'easeOut' as const }
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -71,17 +63,9 @@ function GlassButton({
 }: Props) {
   const { animationsEnabled } = useMotionConfig()
 
-  // Determine Framer motion props based on variant and animation gate
-  const whileHover = animationsEnabled
-    ? variant === 'ghost' ? ghostHover : primarySecondaryHover
-    : undefined
-  const whileTap = animationsEnabled
-    ? variant === 'ghost' ? ghostTap : primarySecondaryTap
-    : undefined
-
   const combinedClassName = cn(
     variantStyles[variant],
-    hoverStyles[variant],
+    animationsEnabled && hoverStyles[variant],
     'inline-flex items-center justify-center gap-2',
     'transition-all duration-200 cursor-pointer',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal',
@@ -94,7 +78,7 @@ function GlassButton({
     const isExternal = href.startsWith('http')
 
     return (
-      <motion.a
+      <a
         href={href}
         download={downloadProp}
         target={isExternal ? '_blank' : undefined}
@@ -102,29 +86,23 @@ function GlassButton({
         className={combinedClassName}
         style={style}
         aria-label={ariaLabel}
-        whileHover={whileHover}
-        whileTap={whileTap}
-        transition={transitionConfig}
       >
         {children}
-      </motion.a>
+      </a>
     )
   }
 
   // ── Render as button ────────────────────────────────────────────────────
   return (
-    <motion.button
+    <button
       onClick={onClick}
       disabled={disabled}
       className={combinedClassName}
       style={style}
       aria-label={ariaLabel}
-      whileHover={whileHover}
-      whileTap={whileTap}
-      transition={transitionConfig}
     >
       {children}
-    </motion.button>
+    </button>
   )
 }
 

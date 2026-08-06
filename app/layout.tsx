@@ -7,7 +7,6 @@ import CustomCursorWrapper from '@/components/layout/CustomCursorWrapper'
 import LoadingScreen from '@/components/layout/LoadingScreen'
 import { AnimationProvider } from '@/components/providers/AnimationProvider'
 import { LenisProvider } from '@/components/providers/LenisProvider'
-import { MotionProvider } from '@/components/providers/MotionProvider'
 
 import '@/app/globals.css'
 
@@ -77,10 +76,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-surface-base text-text-primary font-sans antialiased overflow-x-hidden">
         <AnimationProvider>
           <LenisProvider>
-            <MotionProvider>
               <LoadingScreen />
               {children}
-            </MotionProvider>
           </LenisProvider>
         </AnimationProvider>
         <CustomCursorWrapper />

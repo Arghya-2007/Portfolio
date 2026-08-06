@@ -2,7 +2,6 @@
 
 import { useRef, useEffect, useMemo } from 'react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 
 import { gsap, ScrollTrigger } from '@/lib/gsap/gsap.config'
 import GlassButton from '@/components/ui/Button/GlassButton'
@@ -128,12 +127,8 @@ function RoleCycler({ roles }: RoleCyclerProps) {
       texts={roles}
       mainClassName="text-white bg-teal-500 px-4 py-1 sm:py-1.5 rounded-lg font-display font-semibold text-hero-sub inline-flex overflow-hidden"
       staggerFrom="last"
-      initial={{ y: "100%" }}
-      animate={{ y: 0 }}
-      exit={{ y: "-120%" }}
       staggerDuration={0.04}
       splitLevelClassName="overflow-hidden pb-1"
-      transition={{ type: "spring", damping: 25, stiffness: 300 }}
       rotationInterval={4000}
     />
   )
@@ -141,10 +136,6 @@ function RoleCycler({ roles }: RoleCyclerProps) {
 
 // ─── Mobile Framer Variants ──────────────────────────────────────────────────
 
-const mobileRevealVariants = {
-  hidden: { y: 30, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: 'easeOut' as const } },
-}
 
 // ─── Mobile Layout ───────────────────────────────────────────────────────────
 
@@ -154,11 +145,24 @@ interface MobileLayoutProps {
 
 function MobileLayout({ frames }: MobileLayoutProps) {
   const lenis = useLenis()
+  const containerRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const elements = containerRef.current?.querySelectorAll('.mobile-reveal')
+    if (!elements) return
+    elements.forEach((el) => {
+      gsap.fromTo(el,
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true } }
+      )
+    })
+  }, [])
 
   return (
     <>
       {/* ── Mobile Hero ────────────────────────────────────────────────── */}
       <section
+        ref={containerRef}
         id="hero"
         className="relative w-full min-h-screen overflow-hidden flex items-center justify-center"
         aria-label="Hero section"
@@ -190,44 +194,35 @@ function MobileLayout({ frames }: MobileLayoutProps) {
         <div className="relative z-[2] w-full section-container">
           <div className="flex flex-col gap-6 items-center text-center">
             {/* Mobile text marquee */}
-            <motion.div
-              className="w-full -mt-2 mb-2"
-              variants={mobileRevealVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
+            <div
+              className="mobile-reveal w-full -mt-2 mb-2"
+              
             >
               <TextMarquee
                 text="Welcome to my Portfolio"
                 className="py-2 bg-surface-deep/40 backdrop-blur-sm border-y border-teal/15 rounded-lg"
               />
-            </motion.div>
+            </div>
 
-            <motion.div variants={mobileRevealVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <div className="mobile-reveal">
               <AvailabilityBadge disableAnimation />
-            </motion.div>
+            </div>
 
             {/* Presented By above H1 */}
-            <motion.div
-              className="flex items-center gap-2.5 -mb-3"
-              variants={mobileRevealVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
+            <div
+              className="mobile-reveal flex items-center gap-2.5 -mb-3"
+              
             >
               <span className="h-[1px] w-6 bg-teal/40" />
               <span className="eyebrow !text-teal/90 !tracking-[0.25em] text-xs font-semibold">
                 Presented by
               </span>
               <span className="h-[1px] w-6 bg-teal/40" />
-            </motion.div>
+            </div>
 
-            <motion.h1
-              className="font-display text-display text-text-primary"
-              variants={mobileRevealVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
+            <h1
+              className="mobile-reveal font-display text-display text-text-primary"
+              
             >
               <VariableProximity
                 label={profile.name}
@@ -239,35 +234,26 @@ function MobileLayout({ frames }: MobileLayoutProps) {
                 toFontVariationSettings="'wght' 900, 'opsz' 36"
                 className="font-bold tracking-tight inline-flex flex-wrap justify-center items-center gap-x-3"
               />
-            </motion.h1>
+            </h1>
 
-            <motion.div
-              className="flex flex-col gap-1 items-center"
-              variants={mobileRevealVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
+            <div
+              className="mobile-reveal flex flex-col gap-1 items-center"
+              
             >
               <span className="eyebrow">Full Stack Engineer based in</span>
               <RoleCycler roles={profile.roles} />
-            </motion.div>
+            </div>
 
-            <motion.p
-              className="text-text-secondary text-body max-w-[52ch]"
-              variants={mobileRevealVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
+            <p
+              className="mobile-reveal text-text-secondary text-body max-w-[52ch]"
+              
             >
               {profile.tagline}
-            </motion.p>
+            </p>
 
-            <motion.div
-              className="flex gap-4 flex-wrap flex-col sm:flex-row"
-              variants={mobileRevealVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
+            <div
+              className="mobile-reveal flex gap-4 flex-wrap flex-col sm:flex-row"
+              
             >
               <GlassButton variant="primary" onClick={() => lenis?.scrollTo('#projects')}>
                 View My Work
@@ -275,15 +261,12 @@ function MobileLayout({ frames }: MobileLayoutProps) {
               <GlassButton variant="secondary" href={profile.cvSrc} download="Arghya_CV.pdf">
                 Download CV
               </GlassButton>
-            </motion.div>
+            </div>
 
             {/* Mini stat cards row */}
-            <motion.div
-              className="flex gap-3 flex-wrap justify-center mt-4"
-              variants={mobileRevealVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
+            <div
+              className="mobile-reveal flex gap-3 flex-wrap justify-center mt-4"
+              
             >
               {ABOUT_STATS.slice(0, 3).map((stat) => (
                 <div
@@ -303,7 +286,7 @@ function MobileLayout({ frames }: MobileLayoutProps) {
                   </div>
                 </div>
               ))}
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -315,13 +298,13 @@ function MobileLayout({ frames }: MobileLayoutProps) {
         aria-label="About section"
       >
         <div className="section-container">
-          <motion.div variants={mobileRevealVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <div className="mobile-reveal">
             <SectionHeader eyebrow="Who I Am" title="About Me" disableAnimation />
-          </motion.div>
+          </div>
 
           {/* Bio Card */}
-          <motion.div
-            className="rounded-2xl p-6 sm:p-7 mb-8 flex flex-col gap-4"
+          <div
+            className="mobile-reveal rounded-2xl p-6 sm:p-7 mb-8 flex flex-col gap-4"
             style={{
               background: 'linear-gradient(135deg, rgba(14, 33, 42, 0.92) 0%, rgba(8, 20, 26, 0.96) 100%)',
               backdropFilter: 'blur(28px) saturate(200%)',
@@ -329,10 +312,7 @@ function MobileLayout({ frames }: MobileLayoutProps) {
               border: '1px solid rgba(42, 157, 143, 0.35)',
               boxShadow: '0 16px 36px -10px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.12)',
             }}
-            variants={mobileRevealVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
+            
           >
             {profile.bio.map((paragraph, i) => (
               <p
@@ -342,15 +322,12 @@ function MobileLayout({ frames }: MobileLayoutProps) {
                 {paragraph}
               </p>
             ))}
-          </motion.div>
+          </div>
 
           {/* Stats grid */}
-          <motion.div
-            className="grid grid-cols-2 gap-3.5 mb-8"
-            variants={mobileRevealVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
+          <div
+            className="mobile-reveal grid grid-cols-2 gap-3.5 mb-8"
+            
           >
             {ABOUT_STATS.map((stat) => (
               <div
@@ -378,11 +355,11 @@ function MobileLayout({ frames }: MobileLayoutProps) {
                 </div>
               </div>
             ))}
-          </motion.div>
+          </div>
 
           {/* Core Stack */}
-          <motion.div
-            className="rounded-2xl p-5 sm:p-6 mb-8"
+          <div
+            className="mobile-reveal rounded-2xl p-5 sm:p-6 mb-8"
             style={{
               background: 'linear-gradient(135deg, rgba(14, 33, 42, 0.92) 0%, rgba(8, 20, 26, 0.96) 100%)',
               backdropFilter: 'blur(28px) saturate(200%)',
@@ -390,10 +367,7 @@ function MobileLayout({ frames }: MobileLayoutProps) {
               border: '1px solid rgba(42, 157, 143, 0.35)',
               boxShadow: '0 16px 36px -10px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.12)',
             }}
-            variants={mobileRevealVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
+            
           >
             <div className="flex items-center gap-2 mb-3.5">
               <span className="w-2 h-2 rounded-full bg-teal shadow-[0_0_8px_#2a9d8f] animate-pulse" />
@@ -404,15 +378,12 @@ function MobileLayout({ frames }: MobileLayoutProps) {
                 <TechChip key={skill.name} name={skill.name} />
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Social links */}
-          <motion.div
-            className="flex gap-3 flex-wrap mt-6"
-            variants={mobileRevealVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
+          <div
+            className="mobile-reveal flex gap-3 flex-wrap mt-6"
+            
           >
             {social.github && (
               <a
@@ -436,7 +407,7 @@ function MobileLayout({ frames }: MobileLayoutProps) {
                 LinkedIn
               </a>
             )}
-          </motion.div>
+          </div>
         </div>
       </section>
     </>

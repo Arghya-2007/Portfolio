@@ -1,12 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { gsap } from 'gsap'
+import { useGSAP } from '@gsap/react'
 import { useAnimationStore } from '@/store/useAnimationStore'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLenis } from '@/components/providers/LenisProvider'
-
 import { useLoadingStore } from '@/store/useLoadingStore'
 
 const NAV_LINKS = [
@@ -26,6 +25,10 @@ export default function Navbar() {
   
   const navRefs = useRef<(HTMLButtonElement | null)[]>([])
   const indicatorRef = useRef<HTMLDivElement>(null)
+  
+  const headerRef = useRef<HTMLElement>(null)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const mobileTimeline = useRef<gsap.core.Timeline | null>(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,6 +39,7 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Desktop Indicator animation
   useEffect(() => {
     if (isMobile) return
 
@@ -57,6 +61,53 @@ export default function Navbar() {
     }
   }, [activeSection, isMobile])
 
+  // GSAP Header Entrance
+  useGSAP(() => {
+    if (isComplete) {
+      gsap.to(headerRef.current, {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        ease: 'power3.out',
+        delay: 0.1,
+      })
+    } else {
+      gsap.set(headerRef.current, { y: -80, opacity: 0 })
+    }
+  }, [isComplete])
+
+  // GSAP Mobile Menu Animation
+  useGSAP(() => {
+    if (!mobileMenuRef.current) return
+
+    if (!mobileTimeline.current) {
+      mobileTimeline.current = gsap.timeline({ paused: true })
+        .set(mobileMenuRef.current, { display: 'flex' })
+        .fromTo(mobileMenuRef.current, 
+          { opacity: 0, y: -20 }, 
+          { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+        )
+        .fromTo('.mobile-nav-item', 
+          { opacity: 0, y: 10 }, 
+          { opacity: 1, y: 0, duration: 0.3, stagger: 0.06, ease: 'power2.out' }, 
+          "-=0.15"
+        )
+    }
+
+    if (isMenuOpen) {
+      mobileTimeline.current.play()
+    } else {
+      // If it's the first render and not open, don't reverse (it's already at start)
+      if (mobileTimeline.current.progress() > 0) {
+        mobileTimeline.current.reverse().then(() => {
+          gsap.set(mobileMenuRef.current, { display: 'none' })
+        })
+      } else {
+        gsap.set(mobileMenuRef.current, { display: 'none' })
+      }
+    }
+  }, [isMenuOpen])
+
   const scrollTo = (href: string) => {
     setIsMenuOpen(false)
     if (lenis) {
@@ -71,11 +122,10 @@ export default function Navbar() {
 
   return (
     <>
-      <motion.header
-        initial={{ y: -80, opacity: 0 }}
-        animate={isComplete ? { y: 0, opacity: 1 } : { y: -80, opacity: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+      <header
+        ref={headerRef}
         className={`fixed top-0 left-0 right-0 z-50 h-16 glass-subtle rounded-none border-b border-[rgba(42,157,143,0.12)] transition-colors duration-300 ${bgClass}`}
+        style={{ opacity: 0, transform: 'translateY(-80px)' }}
       >
         <div className="section-container flex items-center justify-between h-full">
           {/* Logo */}
@@ -109,14 +159,12 @@ export default function Navbar() {
               </nav>
 
               {/* Hire Me CTA */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
+              <button
                 onClick={() => scrollTo('#contact')}
-                className="glass-subtle border-teal/50 hover:border-teal/100 hover:bg-[rgba(42,157,143,0.10)] text-text-primary font-sans font-medium text-sm px-4 py-2 rounded-pill transition-colors duration-200"
+                className="glass-subtle border-teal/50 hover:scale-[1.02] active:scale-95 hover:border-teal/100 hover:bg-[rgba(42,157,143,0.10)] text-text-primary font-sans font-medium text-sm px-4 py-2 rounded-pill transition-all duration-200"
               >
                 Hire Me
-              </motion.button>
+              </button>
             </>
           )}
 
@@ -135,70 +183,49 @@ export default function Navbar() {
             </button>
           )}
         </div>
-      </motion.header>
+      </header>
 
       {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isMobile && isMenuOpen && (
-          <motion.div
-            id="mobile-menu"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="fixed inset-0 z-[49] glass-elevated !rounded-none flex flex-col justify-center items-center"
+      {isMobile && (
+        <div
+          id="mobile-menu"
+          ref={mobileMenuRef}
+          className="fixed inset-0 z-[49] glass-elevated !rounded-none flex flex-col justify-center items-center"
+          style={{ display: 'none', opacity: 0 }}
+        >
+          <button
+            onClick={() => setIsMenuOpen(false)}
+            aria-label="Close menu"
+            className="absolute top-4 right-4 p-4 text-text-primary hover:text-teal transition-colors"
           >
-            <button
-              onClick={() => setIsMenuOpen(false)}
-              aria-label="Close menu"
-              className="absolute top-4 right-4 p-4 text-text-primary"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
 
-            <motion.nav
-              initial="hidden"
-              animate="show"
-              variants={{
-                show: {
-                  transition: { staggerChildren: 0.06 }
-                }
-              }}
-              className="flex flex-col items-center space-y-6"
-            >
-              {NAV_LINKS.map((link) => (
-                <motion.button
-                  key={link.href}
-                  variants={{
-                    hidden: { opacity: 0, y: 10 },
-                    show: { opacity: 1, y: 0 }
-                  }}
-                  onClick={() => scrollTo(link.href)}
-                  className={`font-display font-bold text-section-title ${
-                    `#${activeSection}` === link.href ? 'text-text-primary' : 'text-text-secondary'
-                  }`}
-                >
-                  {link.label}
-                </motion.button>
-              ))}
-              
-              <motion.button
-                variants={{
-                  hidden: { opacity: 0, y: 10 },
-                  show: { opacity: 1, y: 0 }
-                }}
-                onClick={() => scrollTo('#contact')}
-                className="mt-8 glass-subtle border-teal/50 text-text-primary font-sans font-medium px-8 py-3 rounded-pill"
+          <nav className="flex flex-col items-center space-y-6">
+            {NAV_LINKS.map((link) => (
+              <button
+                key={link.href}
+                onClick={() => scrollTo(link.href)}
+                className={`mobile-nav-item font-display font-bold text-section-title opacity-0 translate-y-[10px] ${
+                  `#${activeSection}` === link.href ? 'text-text-primary' : 'text-text-secondary'
+                }`}
               >
-                Hire Me
-              </motion.button>
-            </motion.nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                {link.label}
+              </button>
+            ))}
+            
+            <button
+              onClick={() => scrollTo('#contact')}
+              className="mobile-nav-item mt-8 glass-subtle border-teal/50 text-text-primary font-sans font-medium px-8 py-3 rounded-pill opacity-0 translate-y-[10px] active:scale-95 transition-transform"
+            >
+              Hire Me
+            </button>
+          </nav>
+        </div>
+      )}
     </>
   )
 }

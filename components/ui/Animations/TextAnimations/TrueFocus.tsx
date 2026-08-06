@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'motion/react';
+import { gsap } from 'gsap';
 
 interface TrueFocusProps {
   sentence?: string;
@@ -38,6 +38,7 @@ const TrueFocus: React.FC<TrueFocusProps> = ({
   const [lastActiveIndex, setLastActiveIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const focusRectRef = useRef<HTMLDivElement | null>(null);
   const [focusRect, setFocusRect] = useState<FocusRect>({ x: 0, y: 0, width: 0, height: 0 });
 
   useEffect(() => {
@@ -67,6 +68,20 @@ const TrueFocus: React.FC<TrueFocusProps> = ({
       height: activeRect.height
     });
   }, [currentIndex, words.length]);
+
+  useEffect(() => {
+    if (focusRectRef.current) {
+      gsap.to(focusRectRef.current, {
+        x: focusRect.x,
+        y: focusRect.y,
+        width: focusRect.width,
+        height: focusRect.height,
+        opacity: currentIndex >= 0 ? 1 : 0,
+        duration: animationDuration,
+        ease: 'power2.out',
+      });
+    }
+  }, [focusRect, currentIndex, animationDuration]);
 
   const handleMouseEnter = (index: number) => {
     if (manualMode) {
@@ -118,18 +133,9 @@ const TrueFocus: React.FC<TrueFocusProps> = ({
         );
       })}
 
-      <motion.div
-        className="absolute top-0 left-0 pointer-events-none box-border border-0"
-        animate={{
-          x: focusRect.x,
-          y: focusRect.y,
-          width: focusRect.width,
-          height: focusRect.height,
-          opacity: currentIndex >= 0 ? 1 : 0
-        }}
-        transition={{
-          duration: animationDuration
-        }}
+      <div
+        ref={focusRectRef}
+        className="absolute top-0 left-0 pointer-events-none box-border border-0 opacity-0"
         style={
           {
             '--border-color': borderColor,
@@ -165,7 +171,7 @@ const TrueFocus: React.FC<TrueFocusProps> = ({
             filter: 'drop-shadow(0 0 4px var(--border-color))'
           }}
         ></span>
-      </motion.div>
+      </div>
     </div>
   );
 };
