@@ -44,6 +44,7 @@
 
   html {
     scroll-behavior: auto;
+    scrollbar-width: none; /* Hide native scrollbar for Firefox */
     /* Lenis handles smooth scroll — disable native */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -90,22 +91,18 @@
     cursor: none !important;
   }
 
-  /* Custom scrollbar */
+  /* Custom scrollbar - completely hidden */
   ::-webkit-scrollbar {
-    width: 6px;
+    display: none;
+    width: 0;
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--surface-base);
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(42, 157, 143, 0.40);
-    border-radius: 100px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(42, 157, 143, 0.70);
+    background: transparent;
   }
 
   /* Selection color */
@@ -147,6 +144,31 @@
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(42, 157, 143, 0.12);
     border-radius: 100px;
+  }
+
+  /* Navbar Scroll Progress Border */
+  .nav-scroll-border {
+    position: relative;
+    border: none !important;
+  }
+
+  .nav-scroll-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(
+      to right,
+      var(--color-teal) 0%,
+      var(--color-gold) calc(var(--scroll-progress, 0) * 100%),
+      transparent calc(var(--scroll-progress, 0) * 100%)
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 10;
   }
 
   /* Warm accent border (::before) — used on featured cards */

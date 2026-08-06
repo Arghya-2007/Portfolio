@@ -1,41 +1,63 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import { gsap, ScrollTrigger } from "@/lib/gsap/gsap.config";
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
+import { gsap, ScrollTrigger, SplitText } from "@/lib/gsap/gsap.config";
 import { getGPUTier } from "detect-gpu";
+import { ArrowUpRight, Cpu, Layers, Sparkles, TerminalSquare, Rocket, Code2 } from "lucide-react";
 
 
-const dummyProjects = [
+
+const projectsData = [
   {
-    title: "Quantum Nexus",
-    category: "Web3 Platform",
-    desc: "A decentralized exchange with real-time analytics and predictive trading algorithms.",
-    image: "/images/projects/project-1.webp",
+    title: "DD Tours & Travels",
+    category: "Full Stack Travel Platform",
+    desc: "Full Stack Travel Booking Platform with real-time listings, user flows & booking system.",
+    techStack: ["Next.js", "Node.js", "PostgreSQL", "REST APIs"],
+    architecture: "Client-Server with RESTful APIs",
+    deployments: ["AWS", "Vercel"],
+    link: "https://ddtours.in",
+    image: "/images/projects/project-3.webp",
   },
   {
-    title: "Aura Dynamics",
-    category: "Generative AI",
-    desc: "Interactive AI visualization tool for creating immersive ambient environments.",
+    title: "EquiLens AI BIAS",
+    category: "AI BIAS Detector",
+    desc: "AI-powered system to detect, visualize and explain bias in text & datasets.",
+    techStack: ["React", "Python", "Vertex AI", "Google Cloud"],
+    architecture: "Serverless AI Processing Pipeline",
+    deployments: ["Firebase", "Google Cloud"],
+    link: "https://equilens.devarghya.in",
     image: "/images/projects/project-2.webp",
   },
   {
-    title: "Lumina Frame",
-    category: "E-Commerce",
-    desc: "A high-performance headless Shopify storefront with custom 3D product configurators.",
-    image: "/images/projects/project-3.webp",
+    title: "AI Notes App",
+    category: "Mobile App",
+    desc: "Smart student notes manager — AI-assisted tagging, summarization & search.",
+    techStack: ["Flutter", "Firebase", "LLMs"],
+    architecture: "Event-Driven Mobile Architecture",
+    deployments: ["App Store", "Play Store"],
+    link: "#",
+    image: "/images/projects/project-1.webp",
   },
   {
     title: "Velocity OS",
     category: "System Design",
     desc: "A web-based operating system interface showcasing complex state management.",
+    techStack: ["React", "TypeScript", "Redux", "Framer Motion"],
+    architecture: "Component-Based Architecture",
+    deployments: ["Vercel", "Cloudflare"],
+    link: "#",
     image: "/images/projects/project-4.webp",
   },
   {
-    title: "Chroma Engine",
-    category: "Creative Coding",
-    desc: "Custom WebGL shader engine built for high-end interactive storytelling.",
+    title: "Geo Trek Camera",
+    category: "Android App",
+    desc: "A geo-location based camera app that captures images with location metadata and allows users to share them with their location.",
+    techStack: ["Android", "Kotlin", "Google Maps API", "Firebase"],
+    architecture: "Client-Server with RESTful APIs",
+    deployments: ["Play Store"],
+    link: "https://github.com/abhilash-coder/GEOTREKK_CAMERA",
     image: "/images/projects/project-5.webp",
-  },
+  }
 ];
 
 const SheryContainer = React.memo(
@@ -46,7 +68,7 @@ const SheryContainer = React.memo(
         className="shery-projects-images w-full h-full opacity-100 cursor-pointer"
         style={{ position: 'relative', width: '100%', height: '100%' }}
       >
-        {dummyProjects.map((project, i) => (
+        {projectsData.map((project, i) => (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
             key={i}
@@ -69,7 +91,7 @@ const Projects = React.memo(function Projects() {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLDivElement>(null);
-
+  const isInitialMount = useRef(true);
 
   const isAnimating = useRef(false);
   const sheryInitialized = useRef(false);
@@ -92,6 +114,45 @@ const Projects = React.memo(function Projects() {
       }
     })();
   }, []);
+
+  // Play Intro Animation whenever currentIndex changes (safely after React renders)
+  useLayoutEffect(() => {
+    // Reset containers to prevent layout jumps
+    gsap.set([".project-info-left", ".project-info-right"], { opacity: 1, y: 0 }); 
+
+    const tlIn = gsap.timeline({
+      onComplete: () => {
+        isAnimating.current = false;
+      }
+    });
+
+    const dly = isInitialMount.current ? 0.5 : 0;
+    
+    // Premium Blur + Scale Reveal for Title
+    tlIn.fromTo(".project-title",
+      { opacity: 0, y: 60, filter: "blur(12px)", scale: 0.95 },
+      { opacity: 1, y: 0, filter: "blur(0px)", scale: 1, duration: 1.2, ease: "power4.out" },
+      dly
+    );
+
+    tlIn.fromTo(".animate-item",
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.6, stagger: 0.05, ease: "power3.out" },
+      dly + 0.1
+    );
+
+    tlIn.fromTo(".separator-line",
+      { scaleX: 0 },
+      { scaleX: 1, duration: 0.8, ease: "expo.inOut", transformOrigin: "left center" },
+      dly
+    );
+
+    isInitialMount.current = false;
+
+    return () => {
+      tlIn.kill();
+    };
+  }, [currentIndex]);
 
   useEffect(() => {
     const currentImagesRef = imagesRef.current;
@@ -141,7 +202,7 @@ const Projects = React.memo(function Projects() {
           scrollSpeed: 6,
           touchSpeed: 6,
           damping: 7,
-           config: {
+          config: {
             a: { value: 2, range: [0, 30] },
             b: { value: -0.91, range: [-1, 1] },
             zindex: { value: 0, range: [-9999999, 9999999] },
@@ -251,30 +312,41 @@ const Projects = React.memo(function Projects() {
     isAnimating.current = true;
 
     // Loop back to 0 if at the last project
-    const nextIndex = currentIndex >= dummyProjects.length - 1 ? 0 : currentIndex + 1;
+    const nextIndex = currentIndex >= projectsData.length - 1 ? 0 : currentIndex + 1;
 
-    // SheryJS handles the WebGL image transition internally via its own mousedown listener now.
-    // We only need to animate the text out and in.
-
-    // Animate text out and in
-    gsap.to(".project-info", {
-      y: -50,
-      opacity: 0,
-      duration: 0.4,
-      ease: "power2.in",
+    // Outro Timeline
+    const tlOut = gsap.timeline({
       onComplete: () => {
         setCurrentIndex(nextIndex);
-
-        gsap.fromTo(".project-info",
-          { y: 50, opacity: 0 },
-          {
-            y: 0, opacity: 1, duration: 0.6, ease: "power3.out", onComplete: () => {
-              isAnimating.current = false;
-            }
-          }
-        );
+        // The React state change triggers the useLayoutEffect above, cleanly playing the Intro animation
       }
     });
+
+    // Premium Blur + Translate Outro for Title
+    tlOut.to(".project-title", {
+      opacity: 0,
+      y: -40,
+      filter: "blur(10px)",
+      scale: 0.95,
+      duration: 0.5,
+      ease: "power3.in"
+    }, 0);
+
+    tlOut.to(".animate-item", {
+      opacity: 0,
+      y: -20,
+      duration: 0.4,
+      stagger: 0.02,
+      ease: "power2.in"
+    }, 0);
+
+    tlOut.to(".separator-line", {
+      scaleX: 0,
+      duration: 0.4,
+      ease: "power2.in",
+      transformOrigin: "right center"
+    }, 0);
+
   }, [currentIndex]);
 
   return (
@@ -292,25 +364,97 @@ const Projects = React.memo(function Projects() {
       <SheryContainer ref={imagesRef} />
 
       {/* Content Overlay */}
-      <div className="absolute inset-0 z-10 pointer-events-none flex flex-col justify-center px-12 md:px-24 lg:px-48 bg-gradient-to-t from-black/80 via-transparent to-black/40">
-        <div ref={textRef} className="project-info max-w-4xl pt-20 transform-gpu will-change-transform">
-          <p className="text-white/60 text-sm md:text-lg font-mono mb-4 uppercase tracking-[0.2em]">
-            {String(currentIndex + 1).padStart(2, '0')} — {dummyProjects[currentIndex].category}
-          </p>
-          <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white mb-6 drop-shadow-2xl">
-            {dummyProjects[currentIndex].title}
-          </h2>
-          <p className="text-white/80 text-lg md:text-2xl font-light leading-relaxed max-w-2xl text-balance drop-shadow-md">
-            {dummyProjects[currentIndex].desc}
-          </p>
+      <div className="absolute inset-0 z-10 pointer-events-none flex flex-col md:flex-row items-center justify-between px-8 md:px-16 lg:px-24 bg-gradient-to-r from-black/80 via-transparent to-black/80">
 
-          <div className="mt-12 flex items-center gap-4">
-            <div className="w-12 h-[1px] bg-white/40"></div>
-            <p className="text-white/40 text-sm uppercase tracking-widest">
-              Tap anywhere to view next
+        {/* Left Container */}
+        <div ref={textRef} className="project-info-left w-full md:w-[50%] flex flex-col justify-center transform-gpu will-change-transform mt-24 md:mt-0 relative">
+
+          {/* Premium Animated Background SVG decoration */}
+          <div className="absolute -top-32 -left-16 w-64 h-64 opacity-20 pointer-events-none mix-blend-screen hidden md:block">
+            <svg viewBox="0 0 100 100" className="animate-[spin_20s_linear_infinite] w-full h-full">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="white" strokeWidth="0.5" strokeDasharray="4 8" />
+              <path d="M50 15 L53 47 L85 50 L53 53 L50 85 L47 53 L15 50 L47 47 Z" fill="none" stroke="white" strokeWidth="1" className="animate-pulse" />
+            </svg>
+          </div>
+
+          <div className="animate-item flex items-center gap-4 mb-8">
+            <span className="w-12 h-[2px] bg-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"></span>
+            <p className="text-white/80 text-sm md:text-base font-bold tracking-[0.4em] uppercase drop-shadow-md">
+              <span className="text-white">{String(currentIndex + 1).padStart(2, '0')}</span> — {projectsData[currentIndex].category}
             </p>
           </div>
+
+          <h2 className="project-title text-7xl md:text-[7rem] lg:text-[9rem] font-black uppercase tracking-tighter text-white mb-12 leading-[0.85] text-balance drop-shadow-2xl" style={{ perspective: "1000px" }}>
+            {projectsData[currentIndex].title}
+          </h2>
+
+          <div className="animate-item flex">
+            <a href={projectsData[currentIndex].link} target="_blank" rel="noopener noreferrer" className="group relative flex items-center justify-center gap-3 px-10 py-5 border border-white/30 rounded-full overflow-hidden pointer-events-auto cursor-pointer hover:border-white transition-all duration-500 backdrop-blur-md bg-black/20 shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+              <div className="absolute inset-0 w-full h-full bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+              <span className="relative z-10 text-white group-hover:text-black font-bold text-xs md:text-sm uppercase tracking-[0.2em] transition-colors duration-500">
+                Explore Project
+              </span>
+              <ArrowUpRight className="relative z-10 w-4 h-4 text-white group-hover:text-black transition-colors duration-500 transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+            </a>
+          </div>
         </div>
+
+        {/* Right Container */}
+        <div className="project-info-right w-full md:w-[40%] lg:w-[35%] flex flex-col justify-center gap-10 transform-gpu will-change-transform text-left mb-24 md:mt-0 relative z-10">
+
+          <p className="animate-item text-white/80 text-lg md:text-2xl leading-relaxed font-light text-balance drop-shadow-md">
+            {projectsData[currentIndex].desc}
+          </p>
+
+          <div className="separator-line w-full h-[1px] bg-gradient-to-r from-white/40 to-transparent"></div>
+
+          <div className="flex flex-col gap-10">
+            <div className="animate-item group">
+              <div className="flex items-center gap-2 mb-5">
+                <Code2 className="w-4 h-4 text-white/50" />
+                <h3 className="text-white/50 text-xs font-bold uppercase tracking-[0.2em]">Tech Stack</h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {projectsData[currentIndex].techStack.map((tech, i) => (
+                  <span key={i} className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white/90 font-medium text-xs tracking-widest uppercase drop-shadow-md backdrop-blur-md hover:bg-white/10 hover:border-white/30 transition-all duration-300">
+                    <Sparkles className="w-3 h-3 text-white/40" />
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="animate-item group">
+              <div className="flex items-center gap-2 mb-5">
+                <Layers className="w-4 h-4 text-white/50" />
+                <h3 className="text-white/50 text-xs font-bold uppercase tracking-[0.2em]">Architecture</h3>
+              </div>
+              <div className="flex items-center gap-4 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md hover:bg-white/10 transition-all duration-300">
+                <Cpu className="w-6 h-6 text-white/70" />
+                <p className="text-white/90 font-medium text-sm uppercase tracking-widest leading-relaxed drop-shadow-md">
+                  {projectsData[currentIndex].architecture}
+                </p>
+              </div>
+            </div>
+
+            <div className="animate-item group">
+              <div className="flex items-center gap-2 mb-5">
+                <Rocket className="w-4 h-4 text-white/50" />
+                <h3 className="text-white/50 text-xs font-bold uppercase tracking-[0.2em]">Deployments</h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {projectsData[currentIndex].deployments.map((dep, i) => (
+                  <span key={i} className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white/90 font-medium text-xs tracking-widest uppercase drop-shadow-md backdrop-blur-md hover:bg-white/10 transition-all duration-300">
+                    <TerminalSquare className="w-3 h-3 text-white/40" />
+                    {dep}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </div>
   );

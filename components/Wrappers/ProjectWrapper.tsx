@@ -191,6 +191,7 @@ export default function ProjectWrapper() {
 
   return (
     <section
+      id="projects"
       ref={containerRef}
       className={`relative h-[500vh] w-full bg-transparent disable-custom-cursor ${!isInView ? 'pointer-events-none' : ''}`}
     >

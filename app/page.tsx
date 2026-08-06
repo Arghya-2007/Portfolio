@@ -14,8 +14,10 @@ const Hero = dynamic(() => import('@/components/sections/Hero'), { ssr: false })
 const TechStack = dynamic(() => import('@/components/sections/TechStack'), { ssr: false })
 const RoadMap = dynamic(() => import('@/components/sections/RoadMap'), { ssr: false })
 const ProjectWrapper = dynamic(() => import('@/components/Wrappers/ProjectWrapper'), { ssr: false })
+const Faq = dynamic(() => import('@/components/sections/Faq'), { ssr: false })
 import TransitionWrapper from '@/components/Wrappers/TransitionWrapper'
 import ContactRevealWrapper from '@/components/Wrappers/ContactRevealWrapper'
+import Navbar from '@/components/layout/NavBar/Navbar'
 
 export default function HomePage() {
   useActiveSection()
@@ -45,6 +47,7 @@ export default function HomePage() {
       className="relative z-10 min-h-screen origin-center"
       style={{ opacity: 0.8, transform: 'scale(0.99)' }}
     >
+      <Navbar />
       <Hero />
       <TransitionWrapper>
         <TechStack />
@@ -54,6 +57,7 @@ export default function HomePage() {
       <ContactRevealWrapper>
         <Contact />
       </ContactRevealWrapper>
+      <Faq />
     </main>
   )
 }

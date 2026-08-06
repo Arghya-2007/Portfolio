@@ -13,7 +13,7 @@ export default function ContactRevealWrapper({ children }: ContactRevealWrapperP
     // it seamlessly scrolls up OVER the sticky container.
     // This creates a flawless, native vertical "Stack" wipe effect 
     // WITHOUT the GSAP pin-spacer bugs caused by dynamic component loading!
-    <div className="relative w-full z-[100] -mt-[100vh] bg-neutral-950 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] transform-gpu will-change-transform">
+    <div id="contact" className="relative w-full z-[100] -mt-[100vh] bg-neutral-950 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] transform-gpu will-change-transform">
       {children}
     </div>
   )
